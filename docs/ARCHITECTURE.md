@@ -659,3 +659,10 @@ derived decisions in [`V0.1_SPEC.md`](V0.1_SPEC.md)):
    is the standing regression metric for every subsequent phase.
 8. **Fixture stack: TypeScript + vitest** (house style), hermetic via a frozen
    lockfile and a once-per-machine cached install.
+9. **`V0.1_SPEC.md` is FROZEN (2026-07-03)** as the v0.1 implementation
+   contract, with three refinements folded in at freeze: benchmark-agnostic
+   `BenchmarkSpec` (declarative verifiers, additive extension), rich per-run
+   regression metrics (tool calls, invalid calls, retries, tokens, wall-clock,
+   iterations, failure reason), and automatic transcript-replay validation
+   after every benchmark run. Further v0.1 scope changes require an explicit
+   Director-approved amendment.
