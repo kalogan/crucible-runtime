@@ -4,3 +4,11 @@
 # (e.g. one above a temp dir or user profile).
 packages:
   - "."
+
+# esbuild works via its @esbuild/* optional-dependency binaries; its build
+# script is an optimization we deliberately never run (no dependency code
+# execution at install). Declaring it here keeps strict build-approval
+# machines (strict-dep-builds / ERR_PNPM_IGNORED_BUILDS) quiet and identical
+# to the default-ignore behavior everywhere else.
+ignoredBuiltDependencies:
+  - esbuild
