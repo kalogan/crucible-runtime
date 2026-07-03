@@ -567,17 +567,27 @@ Direct encoding of pipeline §8, enforced at the tool layer (§6 above):
 
 ## 14. Phased implementation plan — v0.1 → v1.0
 
-Each phase is a shippable, gate-green slice with a demo. Phases are sequenced
-by dependency; within a phase, work decomposes into disjoint surfaces (this
-repo will be built *with* the pipeline it implements).
+**Revised 2026-07-03:** the roadmap is restructured around proving the
+project's fundamental risk first — *can a local open-weights model reliably
+execute a multi-step native tool-calling loop to a verifiable engineering
+outcome?* v0.1 is now the **benchmark kernel**: the smallest end-to-end runtime
+that answers that question with a scored, reproducible benchmark
+(`fix-failing-test`). The full v0.1 contract — interfaces, components, tools,
+fixture, acceptance criteria, testing strategy — lives in
+[`V0.1_SPEC.md`](V0.1_SPEC.md). The old "read-only kernel first, writes later"
+split is dissolved; the benchmark needs `write_file` + `run_command` on day one.
+
+Each phase is a shippable, gate-green slice with a demo, and **every phase
+re-runs the v0.1 benchmark as a regression gate** — the 5-run pass rate must
+never drop.
 
 | Version | Slice | Capabilities landed | Exit demo ("done" means) |
 |---|---|---|---|
-| **0.1** | **Kernel + Ollama** | `RuntimeMessage` model, non-streaming loop, Ollama adapter (`/api/chat`, `num_ctx`, `withRetry`), 4 read-only tools (`read_file`, `list_dir`, `glob`, `grep`), FakeProvider test harness, JSONL transcript | `crucible chat` answers a question about a real repo via native tool calls on a local qwen3 |
-| **0.2** | **Tools + policy** | Full tool registry, Zod→JSON-Schema generation, safety classes, `write_file` + timeout-wrapped `run_command`, targeted-git tool, workspace/surface enforcement, parallel tool execution | Agent edits a file, runs the tests, reports real exit codes; write outside workspace is denied and the model self-corrects |
+| **0.1** | **Benchmark kernel** | Per [`V0.1_SPEC.md`](V0.1_SPEC.md): `RuntimeMessage` model, non-streaming loop, Ollama adapter (`/api/chat`, `num_ctx`, `withRetry`), 5 tools (`read_file`, `list_dir`, `grep`, `write_file`, `run_command`), write-surface enforcement, JSONL transcript, FakeProvider harness, benchmark harness + fixture | **`fix-failing-test` passes ≥ 4/5 runs on qwen3:14b with zero human intervention** |
+| **0.2** | **Tools + policy** | Full safety classes, `edit_file` (string-replace), `glob`, targeted-git tool, generalized surface enforcement, parallel tool execution | Policy denial + model self-correction demo; benchmark pass rate holds |
 | **0.3** | **Roles + prompts** | Prompt packs (files, versioned, interpolated), `AgentRole` manifests, Architect role runs end-to-end, `ask_director` with paused-for-approval, config system | Architect grills with structured questions, then executes a small task under its role constraints |
 | **0.4** | **Context manager** | Token ledger, layered assembly, tool-result degradation, compaction via hidden summarize-turn, durable memory tool, resume-cold from journal + memory; optional `chatStream` for CLI | A session 3× the model's window completes without overflow; kill the process mid-turn, resume, finish |
-| **0.5** | **Second provider** | Anthropic adapter + OpenAI-compatible adapter (covers OpenAI, vLLM, LM Studio), capability table drives differences (caching, parallel calls), provider parity test suite (same scripted task, all providers) | The identical Architect session runs on Ollama and Claude by changing one config line |
+| **0.5** | **Second provider** | Anthropic adapter + OpenAI-compatible adapter (covers OpenAI, vLLM, LM Studio), capability table drives differences (caching, parallel calls); **the v0.1 benchmark becomes the provider parity suite**; package split (per Director decision) | The identical benchmark passes on Ollama and Claude by changing one config line |
 | **0.6** | **Builders** | `dispatch_builder` → child-process sessions, dispatch-brief template, per-role model selection, surface disjointness checked at dispatch, builder final reports | Architect dispatches 2 parallel builders on disjoint surfaces; both land targeted commits |
 | **0.7** | **Supervision** | Heartbeat supervisor, §D liveness table (mtime + commits, never processes), stall/death detection, salvage → `wip` checkpoint → continuation brief → relaunch | Kill a builder mid-task; supervisor detects, salvages, relaunches; the continuation finishes the slice |
 | **0.8** | **Verification** | Gate runner (per-command `timeout`, real exit codes, `PIPESTATUS`-honest, test-count parsing + drift detection), Validator role, verify-on-completion-claim wired into lifecycle | A builder that lies "all green" is caught: Validator's gate run fails, slice does not advance |
@@ -634,3 +644,18 @@ re-litigate per slice:
    gated against), with `llama3.1-8b` as the fallback entry in the capability
    table.
 4. **License: Apache-2.0** (see `LICENSE`).
+
+Additional decisions locked 2026-07-03 with the roadmap revision (details and
+derived decisions in [`V0.1_SPEC.md`](V0.1_SPEC.md)):
+
+5. **v0.1 is the benchmark kernel.** The `fix-failing-test` benchmark is the
+   official v0.1 exit criteria; the fundamental risk (local multi-step native
+   tool calling to a verifiable outcome) is proven before any downstream
+   engineering.
+6. **Benchmark model pin: `qwen3:14b` is the required pass** (refines
+   decision 3); comparison models (`qwen3:8b`, coding-tuned models) are
+   optional and non-blocking.
+7. **Benchmark scoring: ≥ 4 of 5 runs pass**, seeds 1–5; the 5-run pass rate
+   is the standing regression metric for every subsequent phase.
+8. **Fixture stack: TypeScript + vitest** (house style), hermetic via a frozen
+   lockfile and a once-per-machine cached install.
