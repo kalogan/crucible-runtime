@@ -45,6 +45,7 @@ export const runCommand: Tool<z.infer<typeof runCommandInput>, RunCommandOutput>
         cwd: ctx.workspace,
         shell: true,
         env: { ...process.env, CI: 'true' }, // never let a runner drop into watch mode
+        detached: true, // own process group, so a kill takes the whole tree
       });
 
       let stdout = '';
@@ -53,12 +54,23 @@ export const runCommand: Tool<z.infer<typeof runCommandInput>, RunCommandOutput>
       child.stdout.on('data', (d: Buffer) => (stdout += d.toString()));
       child.stderr.on('data', (d: Buffer) => (stderr += d.toString()));
 
+      // Kill the process GROUP: killing only the shell leaves grandchildren
+      // holding the stdio pipes open, and 'close' never fires (the zombie-gate
+      // lesson, PIPELINE.md §4).
+      const killTree = (): void => {
+        try {
+          if (child.pid !== undefined) process.kill(-child.pid, 'SIGKILL');
+          else child.kill('SIGKILL');
+        } catch {
+          child.kill('SIGKILL');
+        }
+      };
       const killTimer = setTimeout(() => {
         timedOut = true;
-        child.kill('SIGKILL');
+        killTree();
       }, timeoutMs);
       const onAbort = (): void => {
-        child.kill('SIGKILL');
+        killTree();
       };
       ctx.signal.addEventListener('abort', onAbort, { once: true });
 

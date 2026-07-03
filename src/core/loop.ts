@@ -5,7 +5,7 @@
 
 import type { Clock } from './inject.js';
 import type { EventEmitter, ToolErrorKind } from './events.js';
-import type { RuntimeMessage, ToolCall, TokenUsage } from './messages.js';
+import type { JsonSchemaTool, RuntimeMessage, ToolCall, TokenUsage } from './messages.js';
 import { addUsage } from './messages.js';
 import type { Provider, ChatOptions } from '../providers/types.js';
 import type { ToolContext } from '../tools/types.js';
@@ -33,7 +33,7 @@ export interface Budgets {
 
 /** What the loop needs from the tool layer — implemented by ToolRegistry. */
 export interface ToolExecutor {
-  jsonSchemas(): import('./messages.js').JsonSchemaTool[];
+  jsonSchemas(): JsonSchemaTool[];
   execute(
     call: ToolCall,
     ctx: ToolContext,

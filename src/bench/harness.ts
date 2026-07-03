@@ -10,6 +10,7 @@ import type { TurnResult } from '../core/loop.js';
 import { AgentSession } from '../core/session.js';
 import type { Provider } from '../providers/types.js';
 import { ToolRegistry } from '../tools/registry.js';
+import type { Tool } from '../tools/types.js';
 import { readFile, listDir, grep, writeFile, runCommand } from '../tools/builtin/index.js';
 import { createTranscriptWriter, readJournal } from '../host/transcript.js';
 import { loadPrompt, interpolate } from './prompt.js';
@@ -170,7 +171,9 @@ async function executeRun(args: {
   for (const name of spec.tools.allowed) {
     const tool = ALL_TOOLS[name as keyof typeof ALL_TOOLS];
     if (tool === undefined) throw new Error(`benchmark spec allows unknown tool: ${name}`);
-    registry.register(tool);
+    // The union collapses each tool's precise In type; the registry re-validates
+    // every call against the tool's own Zod schema, so the cast is safe.
+    registry.register(tool as unknown as Tool);
   }
 
   const journalPath = path.join(runDir, 'journal.jsonl');

@@ -63,7 +63,7 @@ export function fromWireResponse(
   body: OllamaChatResponse,
   ids: IdGen,
 ): { message: AssistantMessage; usage: TokenUsage; stopReason: 'end' | 'tool_calls' | 'max_tokens' } {
-  const wire = body.message ?? {};
+  const wire: NonNullable<OllamaChatResponse['message']> = body.message ?? { role: 'assistant' };
   const toolCalls = (wire.tool_calls ?? [])
     .filter((c) => typeof c.function?.name === 'string' && c.function.name.length > 0)
     .map((c) => ({
