@@ -1,0 +1,39 @@
+{
+  "name": "crucible-runtime",
+  "version": "0.1.0",
+  "description": "Provider-agnostic AI agent runtime for the Architect–Builder pipeline. Local-first, native tool calling only.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "bin": {
+    "crucible": "dist/host/cli.js"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "build": "tsc -p tsconfig.build.json",
+    "gate": "pnpm typecheck && pnpm lint && pnpm test && pnpm build",
+    "bench": "tsx src/host/cli.ts bench",
+    "chat": "tsx src/host/cli.ts chat"
+  },
+  "dependencies": {
+    "picomatch": "^4.0.2",
+    "zod": "^3.24.1",
+    "zod-to-json-schema": "^3.24.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "@types/node": "^22.10.2",
+    "@types/picomatch": "^3.0.1",
+    "eslint": "^9.17.0",
+    "tsx": "^4.19.2",
+    "typescript": "~5.7.2",
+    "typescript-eslint": "^8.18.1",
+    "vitest": "^2.1.8"
+  }
+}

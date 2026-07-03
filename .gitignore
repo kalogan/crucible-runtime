@@ -1,0 +1,6 @@
+node_modules/
+dist/
+*.tsbuildinfo
+benchmarks/*/fixture/node_modules/
+benchmarks/results/*.tmp
+.crucible-scratch/
