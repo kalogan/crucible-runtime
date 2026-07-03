@@ -19,6 +19,8 @@ real exit codes.
 the v0.1 → v1.0 implementation plan live in
 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
+Licensed under [Apache-2.0](LICENSE).
+
 ## Documents
 
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — architecture, folder

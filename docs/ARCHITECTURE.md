@@ -617,21 +617,20 @@ Designed-in seams, in rough order of likely demand:
 - **A richer host** — web dashboard over the event stream + journals (live
   builder fleet view). The event bus is already the API for it.
 
-## 16. Open questions for the Director
+## 16. Director decisions (2026-07-03)
 
-Queued per the pipeline's review-queue discipline — none block v0.1:
+The four design forks were grilled and locked — these are settled; do not
+re-litigate per slice:
 
-1. **Builder isolation level (matters from v0.6):** child processes sharing the
-   working tree with surface-enforcement (simple; the pipeline's proven mode) vs
-   git-worktree-per-builder (stronger isolation; slightly more git plumbing).
-   Design assumes **shared tree + enforced surfaces** to match the methodology;
-   worktrees can be added as a dispatch option.
-2. **Package layout:** single package now, with `src/` seams clean enough to
-   split into a pnpm workspace (`@crucible/core`, `@crucible/provider-ollama`,
-   …) around v0.5 when the second provider lands. Design assumes **single
-   package first** — split when the seam is proven, not before.
-3. **Reference local model for the v0.1 gate:** qwen3 (best current
-   tool-calling among open weights) vs llama3.1-8B (broadest availability).
-   Assumed **qwen3** as primary + one fallback in the capability table.
-4. **License** for the open-source release (MIT vs Apache-2.0). No code yet, so
-   decide before v0.1 tags.
+1. **Builder isolation: shared working tree + enforced surfaces.** All builders
+   share one tree; the runtime hard-denies writes outside each builder's
+   file-surface allowlist (`ToolContext.surface`). This matches the pipeline's
+   proven mode and keeps mtime-based supervision simple. Worktree-per-builder
+   may arrive later as a per-dispatch option, but is not planned for v1.0.
+2. **Packaging: single package, split around v0.5.** One npm package with clean
+   `src/` seams; split into a pnpm workspace (`@crucible/core`,
+   `@crucible/provider-ollama`, …) when the second provider proves the seam.
+3. **Reference local model: qwen3** (primary target the kernel is built and
+   gated against), with `llama3.1-8b` as the fallback entry in the capability
+   table.
+4. **License: Apache-2.0** (see `LICENSE`).
