@@ -8,7 +8,18 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runBenchmark } from '../../src/bench/harness.js';
-import { benchmarkSpecSchema, type BenchmarkSpec } from '../../src/bench/spec.js';
+import { benchmarkSpecSchema, type BenchmarkSpec, type RunResult } from '../../src/bench/spec.js';
+
+/** On assertion failure, print the run's full diagnostic record — every field
+ * that contributed to `passed` (turn outcome, per-verifier outcomes incl.
+ * command exit + output tail, protected-file hashes, replay validation). */
+function explain(run: RunResult): string {
+  const diagnosticsPath = path.join(path.dirname(run.journalPath), 'diagnostics.json');
+  const diagnostics = fs.existsSync(diagnosticsPath)
+    ? fs.readFileSync(diagnosticsPath, 'utf8')
+    : '(diagnostics.json missing)';
+  return `RUN DIAGNOSTICS (${diagnosticsPath}):\n${diagnostics}`;
+}
 import { FakeClock, fakeIds } from '../fakes/clock.js';
 import { FakeProvider, type ScriptStep } from '../fakes/provider.js';
 
@@ -97,9 +108,9 @@ describe('benchmark harness (Ring 2)', () => {
       { kind: 'text', content: 'Fixed the boundary bug in overlaps(); pnpm test exits 0.' },
     ]);
 
-    expect(run.passed).toBe(true);
-    expect(run.failure_reason).toBeUndefined();
-    expect(run.failures).toEqual([]);
+    expect(run.passed, explain(run)).toBe(true);
+    expect(run.failure_reason, explain(run)).toBeUndefined();
+    expect(run.failures, explain(run)).toEqual([]);
     expect(run.metrics.tool_calls).toEqual({
       total: 5,
       by_tool: { run_command: 2, read_file: 2, write_file: 1 },
@@ -172,9 +183,9 @@ describe('benchmark harness (Ring 2)', () => {
     ]);
     // The denied write never landed, so the protected files are intact and the
     // real fix passed — but the metric records the policy denial.
-    expect(run.passed).toBe(true);
-    expect(run.metrics.invalid_tool_calls.policy_denied).toBe(1);
-    expect(run.metrics.invalid_tool_calls.total).toBe(1);
+    expect(run.passed, explain(run)).toBe(true);
+    expect(run.metrics.invalid_tool_calls.policy_denied, explain(run)).toBe(1);
+    expect(run.metrics.invalid_tool_calls.total, explain(run)).toBe(1);
   }, 120_000);
 
   it('fails a lazy agent that reports success without fixing anything', async () => {

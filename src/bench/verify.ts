@@ -80,27 +80,38 @@ export interface VerifierFailure {
   detail: string;
 }
 
+/** Every verifier's outcome, recorded whether it passed or failed — the
+ * diagnostic record for cross-platform "why did passed flip" comparisons. */
+export interface VerifierOutcome {
+  verifier: string;
+  ok: boolean;
+  detail: string;
+}
+
 export async function runVerifiers(args: {
   verifiers: Verifier[];
   workspace: string;
   protectedBaseline: Record<string, string>;
   events: RuntimeEvent[];
-}): Promise<{ failures: VerifierFailure[]; protectedModified: boolean }> {
-  const failures: VerifierFailure[] = [];
+}): Promise<{
+  failures: VerifierFailure[];
+  protectedModified: boolean;
+  outcomes: VerifierOutcome[];
+}> {
+  const outcomes: VerifierOutcome[] = [];
   let protectedModified = false;
 
   for (const verifier of args.verifiers) {
     switch (verifier.kind) {
       case 'command_exit_zero': {
         const outcome = await runGateCommand(verifier.command, args.workspace, verifier.timeoutMs);
-        if (outcome.exitCode !== 0) {
-          failures.push({
-            verifier: `command_exit_zero(${verifier.command})`,
-            detail: outcome.timedOut
-              ? `HUNG — killed after ${verifier.timeoutMs}ms (exit 124)`
-              : `exit ${outcome.exitCode}: ${outcome.outputTail.slice(-500)}`,
-          });
-        }
+        outcomes.push({
+          verifier: `command_exit_zero(${verifier.command})`,
+          ok: outcome.exitCode === 0,
+          detail: outcome.timedOut
+            ? `HUNG — killed after ${verifier.timeoutMs}ms (exit 124); tail: ${outcome.outputTail.slice(-800)}`
+            : `exit ${outcome.exitCode}; tail: ${outcome.outputTail.slice(-800)}`,
+        });
         break;
       }
       case 'files_unchanged': {
@@ -110,30 +121,41 @@ export async function runVerifiers(args: {
           ...Object.keys(before).filter((rel) => after[rel] !== before[rel]),
           ...Object.keys(after).filter((rel) => before[rel] === undefined),
         ];
-        if (changed.length > 0) {
-          protectedModified = true;
-          failures.push({
-            verifier: 'files_unchanged',
-            detail: `protected files modified: ${changed.join(', ')}`,
-          });
-        }
+        if (changed.length > 0) protectedModified = true;
+        outcomes.push({
+          verifier: 'files_unchanged',
+          ok: changed.length === 0,
+          detail:
+            changed.length === 0
+              ? `${Object.keys(before).length} protected files unchanged (baseline ${Object.keys(before).length}, after ${Object.keys(after).length})`
+              : `protected files modified: ${changed.join(', ')} (baseline ${Object.keys(before).length}, after ${Object.keys(after).length})`,
+        });
         break;
       }
       case 'file_exists': {
-        if (!fs.existsSync(path.join(args.workspace, verifier.path))) {
-          failures.push({ verifier: 'file_exists', detail: `missing: ${verifier.path}` });
-        }
+        const exists = fs.existsSync(path.join(args.workspace, verifier.path));
+        outcomes.push({
+          verifier: 'file_exists',
+          ok: exists,
+          detail: exists ? `present: ${verifier.path}` : `missing: ${verifier.path}`,
+        });
         break;
       }
       case 'transcript_assert': {
-        if (!assertTranscript(verifier.assert, args.events)) {
-          failures.push({ verifier: `transcript_assert(${verifier.assert})`, detail: 'assertion failed' });
-        }
+        const ok = assertTranscript(verifier.assert, args.events);
+        outcomes.push({
+          verifier: `transcript_assert(${verifier.assert})`,
+          ok,
+          detail: ok ? 'assertion held' : 'assertion failed',
+        });
         break;
       }
     }
   }
-  return { failures, protectedModified };
+  const failures = outcomes
+    .filter((o) => !o.ok)
+    .map((o) => ({ verifier: o.verifier, detail: o.detail }));
+  return { failures, protectedModified, outcomes };
 }
 
 function assertTranscript(

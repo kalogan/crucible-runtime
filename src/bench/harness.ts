@@ -239,7 +239,7 @@ async function executeRun(args: {
   else if (verification.protectedModified) failureReason = 'protected_file_modified';
   else if (verification.failures.length > 0) failureReason = 'verification_failed';
 
-  return {
+  const result: RunResult = {
     runId,
     seed,
     passed: failureReason === undefined,
@@ -248,6 +248,31 @@ async function executeRun(args: {
     metrics,
     journalPath,
   };
+
+  // Diagnostic record: EVERY input to the `passed` decision, written beside
+  // the journal whether the run passed or failed — the artifact to diff when
+  // the same run scores differently on two platforms.
+  fs.writeFileSync(
+    path.join(runDir, 'diagnostics.json'),
+    JSON.stringify(
+      {
+        platform: process.platform,
+        node: process.version,
+        workspace,
+        turn_outcome: turn.outcome,
+        turn_final_text: turn.finalText.slice(0, 500),
+        replay_validation: replay,
+        verifier_outcomes: verification.outcomes,
+        protected_modified: verification.protectedModified,
+        protected_baseline_files: Object.keys(protectedBaseline).sort(),
+        failure_reason: failureReason ?? null,
+        result,
+      },
+      null,
+      2,
+    ) + '\n',
+  );
+  return result;
 }
 
 function computeMetrics(
