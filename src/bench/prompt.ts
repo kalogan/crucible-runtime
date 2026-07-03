@@ -10,7 +10,9 @@ export interface PromptFile {
 }
 
 export function loadPrompt(filePath: string): PromptFile {
-  const raw = fs.readFileSync(filePath, 'utf8');
+  // Line-ending agnostic: a CRLF checkout (Windows default) must parse
+  // identically to LF. Normalize once; everything downstream sees LF.
+  const raw = fs.readFileSync(filePath, 'utf8').replace(/\r\n/g, '\n');
   const match = /^---\n([\s\S]*?)\n---\n/.exec(raw);
   if (!match) throw new Error(`prompt file missing frontmatter: ${filePath}`);
   const versionLine = /(?:^|\n)version:\s*(\S+)/.exec(match[1] ?? '');

@@ -45,7 +45,10 @@ export const runCommand: Tool<z.infer<typeof runCommandInput>, RunCommandOutput>
         cwd: ctx.workspace,
         shell: true,
         env: { ...process.env, CI: 'true' }, // never let a runner drop into watch mode
-        detached: true, // own process group, so a kill takes the whole tree
+        // POSIX: own process group, so a group kill takes the whole tree.
+        // Windows: taskkill /T handles the tree instead (detached would only
+        // allocate a separate console for no benefit).
+        detached: process.platform !== 'win32',
       });
 
       let stdout = '';
@@ -54,10 +57,21 @@ export const runCommand: Tool<z.infer<typeof runCommandInput>, RunCommandOutput>
       child.stdout.on('data', (d: Buffer) => (stdout += d.toString()));
       child.stderr.on('data', (d: Buffer) => (stderr += d.toString()));
 
-      // Kill the process GROUP: killing only the shell leaves grandchildren
+      // Kill the process TREE: killing only the shell leaves grandchildren
       // holding the stdio pipes open, and 'close' never fires (the zombie-gate
-      // lesson, PIPELINE.md §4).
+      // lesson, PIPELINE.md §4). POSIX kills the process group; Windows has no
+      // group signal — taskkill /T /F walks the tree.
       const killTree = (): void => {
+        if (process.platform === 'win32') {
+          if (child.pid !== undefined) {
+            spawn('taskkill', ['/pid', String(child.pid), '/T', '/F']).on('error', () => {
+              child.kill('SIGKILL');
+            });
+          } else {
+            child.kill('SIGKILL');
+          }
+          return;
+        }
         try {
           if (child.pid !== undefined) process.kill(-child.pid, 'SIGKILL');
           else child.kill('SIGKILL');

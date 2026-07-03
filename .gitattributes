@@ -1,0 +1,5 @@
+# Normalize to LF everywhere, including Windows checkouts. This keeps prompt
+# parsing, protected-file hashes, and the fixture hash identical across
+# platforms — a CRLF checkout would silently re-key the benchmark's fixture
+# identity and template cache.
+* text=auto eol=lf

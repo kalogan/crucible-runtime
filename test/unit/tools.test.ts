@@ -132,7 +132,8 @@ describe('run_command', () => {
   it('kills a hung command and reports exit 124 as a hang, not a pass', async () => {
     const registry = new ToolRegistry().register(runCommand);
     const result = await registry.execute(
-      call('run_command', { command: 'sleep 30', timeoutMs: 1_000 }),
+      // node is the only guaranteed-portable hang; `sleep` doesn't exist on Windows.
+      call('run_command', { command: 'node -e "setTimeout(function(){}, 30000)"', timeoutMs: 1_000 }),
       ctx(),
     );
     expect(result.output).toMatchObject({ exitCode: 124, timedOut: true });

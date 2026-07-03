@@ -14,7 +14,10 @@ export function resolveInWorkspace(
   if (abs !== workspace && !abs.startsWith(workspace + path.sep)) {
     return { ok: false, reason: `path escapes the workspace: ${p}` };
   }
-  return { ok: true, abs, rel: path.relative(workspace, abs) || '.' };
+  // rel is always posix-style ('/') regardless of platform: it feeds picomatch
+  // surface globs, display, and hashing — all of which speak forward slashes.
+  const rel = path.relative(workspace, abs).split(path.sep).join('/') || '.';
+  return { ok: true, abs, rel };
 }
 
 /** Write allowlist check against workspace-relative picomatch globs. */

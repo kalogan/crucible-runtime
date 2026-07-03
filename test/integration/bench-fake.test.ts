@@ -141,7 +141,13 @@ describe('benchmark harness (Ring 2)', () => {
       RUN_TESTS,
       {
         kind: 'tool_calls',
-        calls: [{ name: 'run_command', arguments: { command: 'rm test/interval.test.ts' } }],
+        // portable delete — `rm` doesn't exist in cmd.exe
+        calls: [
+          {
+            name: 'run_command',
+            arguments: { command: `node -e "require('fs').unlinkSync('test/interval.test.ts')"` },
+          },
+        ],
       },
       RUN_TESTS,
       { kind: 'text', content: 'all green now' },
