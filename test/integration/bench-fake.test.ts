@@ -58,7 +58,11 @@ beforeAll(() => {
 });
 
 afterAll(() => {
-  fs.rmSync(scratchDir, { recursive: true, force: true });
+  // CRUCIBLE_KEEP_SCRATCH=1 preserves staged workspaces for post-mortem
+  // inspection (run `pnpm test` manually inside a run's workspace/ dir).
+  if (process.env['CRUCIBLE_KEEP_SCRATCH'] !== '1') {
+    fs.rmSync(scratchDir, { recursive: true, force: true });
+  }
 });
 
 function singleRunSpec(overrides?: Partial<BenchmarkSpec['budgets']>): BenchmarkSpec {

@@ -23,7 +23,17 @@ import {
   type RunMetrics,
   type RunResult,
 } from './spec.js';
-import { hashFiles, hashTree, runGateCommand, runVerifiers, validateReplay } from './verify.js';
+import {
+  hashFiles,
+  hashTree,
+  inspectInstalledTree,
+  runGateCommand,
+  runVerifiers,
+  validateReplay,
+} from './verify.js';
+
+/** Packages whose presence/link-topology the diagnostics record. */
+const INSPECT_PACKAGES = ['vitest', 'typescript'];
 
 const ALL_TOOLS = { read_file: readFile, list_dir: listDir, grep, write_file: writeFile, run_command: runCommand } as const;
 const SETUP_TIMEOUT_MS = 600_000;
@@ -259,6 +269,10 @@ async function executeRun(args: {
         platform: process.platform,
         node: process.version,
         workspace,
+        // Staging forensics: is the workspace's dependency tree real, and do
+        // its links still resolve after the template -> workspace copy?
+        workspace_inspection: inspectInstalledTree(workspace, INSPECT_PACKAGES),
+        template_inspection: inspectInstalledTree(args.templateDir, INSPECT_PACKAGES),
         turn_outcome: turn.outcome,
         turn_final_text: turn.finalText.slice(0, 500),
         replay_validation: replay,

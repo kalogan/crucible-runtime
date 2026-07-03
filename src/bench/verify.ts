@@ -42,10 +42,23 @@ export function hashTree(root: string): string {
   return hash.digest('hex');
 }
 
+const OUTPUT_CAP = 65_536;
+
 export interface CommandOutcome {
   exitCode: number;
   timedOut: boolean;
+  /** Full combined stdout+stderr, capped at 64 KiB (middle elided). */
+  output: string;
   outputTail: string;
+}
+
+/**
+ * Head + tail rendering: error names (e.g. "Cannot find module 'x'") lead the
+ * output; summaries end it. A tail-only slice loses the former.
+ */
+export function headTail(s: string, chars = 1_500): string {
+  if (s.length <= chars * 2) return s;
+  return `${s.slice(0, chars)}\n… ${s.length - chars * 2} chars elided …\n${s.slice(-chars)}`;
 }
 
 /** Run a verifier command with a REAL exit code under a hard timeout. */
@@ -58,19 +71,27 @@ export function runGateCommand(
     const child = spawn(command, { cwd, shell: true, env: { ...process.env, CI: 'true' } });
     let output = '';
     let timedOut = false;
-    child.stdout.on('data', (d: Buffer) => (output += d.toString()));
-    child.stderr.on('data', (d: Buffer) => (output += d.toString()));
+    const collect = (d: Buffer): void => {
+      if (output.length < OUTPUT_CAP) output += d.toString();
+    };
+    child.stdout.on('data', collect);
+    child.stderr.on('data', collect);
     const timer = setTimeout(() => {
       timedOut = true;
       child.kill('SIGKILL');
     }, timeoutMs);
     child.on('close', (code) => {
       clearTimeout(timer);
-      resolve({ exitCode: timedOut ? 124 : (code ?? 1), timedOut, outputTail: output.slice(-2_000) });
+      resolve({
+        exitCode: timedOut ? 124 : (code ?? 1),
+        timedOut,
+        output,
+        outputTail: output.slice(-2_000),
+      });
     });
     child.on('error', (err) => {
       clearTimeout(timer);
-      resolve({ exitCode: 127, timedOut: false, outputTail: String(err) });
+      resolve({ exitCode: 127, timedOut: false, output: String(err), outputTail: String(err) });
     });
   });
 }
@@ -109,8 +130,8 @@ export async function runVerifiers(args: {
           verifier: `command_exit_zero(${verifier.command})`,
           ok: outcome.exitCode === 0,
           detail: outcome.timedOut
-            ? `HUNG — killed after ${verifier.timeoutMs}ms (exit 124); tail: ${outcome.outputTail.slice(-800)}`
-            : `exit ${outcome.exitCode}; tail: ${outcome.outputTail.slice(-800)}`,
+            ? `HUNG — killed after ${verifier.timeoutMs}ms (exit 124); output: ${headTail(outcome.output)}`
+            : `exit ${outcome.exitCode}; output: ${headTail(outcome.output)}`,
         });
         break;
       }
@@ -177,6 +198,68 @@ function assertTranscript(
   // No write at all ⇒ the bug can't have been fixed; let the command verifier
   // report that — this assert is specifically about ordering.
   return true;
+}
+
+export interface InstalledPackageInfo {
+  kind: 'missing' | 'directory' | 'link' | 'file';
+  /** For links (symlink or Windows junction): the raw target as stored. */
+  target?: string;
+  targetExists?: boolean;
+}
+
+export interface InstalledTreeInspection {
+  root: string;
+  node_modules_exists: boolean;
+  bin_dir_exists: boolean;
+  bin_entries: string[];
+  packages: Record<string, InstalledPackageInfo>;
+}
+
+/**
+ * Diagnostic snapshot of an installed dependency tree: does node_modules
+ * exist, is the .bin populated, and are package entries real directories or
+ * links (pnpm uses relative symlinks on POSIX and junctions with ABSOLUTE
+ * targets on Windows — copy semantics differ, so record kind + target).
+ */
+export function inspectInstalledTree(root: string, packages: string[]): InstalledTreeInspection {
+  const nm = path.join(root, 'node_modules');
+  const bin = path.join(nm, '.bin');
+  const inspection: InstalledTreeInspection = {
+    root,
+    node_modules_exists: fs.existsSync(nm),
+    bin_dir_exists: fs.existsSync(bin),
+    bin_entries: [],
+    packages: {},
+  };
+  try {
+    inspection.bin_entries = fs.readdirSync(bin).sort().slice(0, 12);
+  } catch {
+    /* bin missing — already recorded */
+  }
+  for (const name of packages) {
+    const p = path.join(nm, name);
+    try {
+      const stat = fs.lstatSync(p);
+      if (stat.isSymbolicLink()) {
+        let target: string | undefined;
+        let targetExists: boolean | undefined;
+        try {
+          target = fs.readlinkSync(p);
+          targetExists = fs.existsSync(path.resolve(path.dirname(p), target));
+        } catch {
+          /* unreadable link */
+        }
+        inspection.packages[name] = { kind: 'link', ...(target !== undefined ? { target } : {}), ...(targetExists !== undefined ? { targetExists } : {}) };
+      } else if (stat.isDirectory()) {
+        inspection.packages[name] = { kind: 'directory' };
+      } else {
+        inspection.packages[name] = { kind: 'file' };
+      }
+    } catch {
+      inspection.packages[name] = { kind: 'missing' };
+    }
+  }
+  return inspection;
 }
 
 export interface ReplayOutcome {
