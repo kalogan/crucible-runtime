@@ -46,6 +46,7 @@ async function runScriptedSession(journalPath: string) {
       { kind: 'text', content: 'finished' },
     ]),
     model: 'fake',
+    contextWindow: 32_768,
     chatOptions: {},
     tools: new ToolRegistry().register(noopTool),
     workspace: dir,

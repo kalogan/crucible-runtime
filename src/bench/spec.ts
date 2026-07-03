@@ -82,6 +82,9 @@ export const failureReasonSchema = z.enum([
   'provider_failed',
   'replay_mismatch',
   'aborted',
+  // Ring-3 integrity guard (spec amendment A1): the assembled context reached
+  // the model's window — the run is invalid, not a model failure.
+  'context_overflow',
 ]);
 
 export type FailureReason = z.infer<typeof failureReasonSchema>;

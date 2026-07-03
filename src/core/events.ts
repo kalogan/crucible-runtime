@@ -99,9 +99,15 @@ export type RuntimeEvent =
   | SessionErrorEvent;
 
 /**
- * Write-ahead sink: implementations MUST persist the event durably before
- * returning (the transcript writer appends synchronously). The loop emits
+ * Write-ahead sink: implementations MUST hand the event to the journal before
+ * returning (the transcript writer appends synchronously), and the loop emits
  * before applying the corresponding state change.
+ *
+ * Durability caveat (tracked for v0.4, docs/HARDENING.md D1): "handed to the
+ * journal" means written through the OS, not fsynced per event. This
+ * guarantees deterministic replay after clean completion — the v0.1 claim —
+ * but NOT crash-safe durability of the journal tail; that lands with the
+ * persistence/resume work.
  */
 export type EventSink = (event: RuntimeEvent) => void;
 

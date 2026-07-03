@@ -1,7 +1,13 @@
-// Append-only JSONL journal (ARCHITECTURE.md §12). The writer persists each
+// Append-only JSONL journal (ARCHITECTURE.md §12). The writer appends each
 // event synchronously BEFORE the loop applies the corresponding state change
-// (write-ahead); the reader reconstructs session state for replay validation
-// (V0.1_SPEC.md §8.3).
+// (write-ahead ordering); the reader reconstructs session state for replay
+// validation (V0.1_SPEC.md §8.3).
+//
+// Guarantee scope (v0.1, deliberate): deterministic replay after SUCCESSFUL
+// COMPLETION — per-event writes go through the OS page cache and are fsynced
+// at header and close only, so the journal tail is not crash-durable yet.
+// Durable write-ahead persistence is v0.4 work (docs/HARDENING.md D1); do not
+// build salvage/resume on today's writer.
 
 import * as fs from 'node:fs';
 import * as path from 'node:path';

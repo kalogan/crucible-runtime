@@ -30,6 +30,7 @@ function makeSession(script: ScriptStep[], overrides?: { maxIterations?: number;
     systemPrompt: 'You are a test agent.',
     provider,
     model: 'fake-model',
+    contextWindow: 32_768,
     chatOptions: {},
     tools: registry,
     workspace: '/tmp/nonexistent-ws',
@@ -122,6 +123,26 @@ describe('runTurn', () => {
     );
     const result = await session.runTurn('go');
     expect(result.outcome).toBe('budget_exceeded');
+  });
+
+  it('fails with context_overflow when the prompt reaches the window guard', async () => {
+    const { session, events } = makeSession([
+      {
+        kind: 'dynamic',
+        respond: () => ({
+          // 32768 × 0.9 = 29491 — this response's prompt is over the guard.
+          message: { role: 'assistant', content: 'half-blind answer', toolCalls: [] },
+          usage: { inputTokens: 30_000, outputTokens: 10 },
+          stopReason: 'end',
+        }),
+      },
+    ]);
+    const result = await session.runTurn('go');
+    // Even a "completed-looking" response fails: it may have been computed on
+    // a truncated context, so the run is invalid, not successful.
+    expect(result.outcome).toBe('context_overflow');
+    const error = events.find((e) => e.type === 'session_error');
+    expect(error?.type === 'session_error' && error.message).toContain('context overflow');
   });
 
   it('ends the turn on provider failure after retries', async () => {

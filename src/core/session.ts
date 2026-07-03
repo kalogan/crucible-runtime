@@ -14,6 +14,8 @@ export interface SessionConfig {
   systemPrompt: string;
   provider: Provider;
   model: string;
+  /** The model's context window (tokens) — feeds the loop's overflow guard. */
+  contextWindow: number;
   chatOptions: Omit<ChatOptions, 'signal'>;
   tools: ToolExecutor;
   workspace: string;
@@ -64,6 +66,7 @@ export class AgentSession {
     this.lastTurn = await runTurn({
       provider: config.provider,
       model: config.model,
+      contextWindow: config.contextWindow,
       chatOptions: config.chatOptions,
       messages: this.messages,
       tools: config.tools,

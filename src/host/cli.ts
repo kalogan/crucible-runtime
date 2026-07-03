@@ -122,6 +122,7 @@ async function chat(argv: string[]): Promise<number> {
     systemPrompt: prompt.body,
     provider,
     model,
+    contextWindow: provider.capabilities(model).contextWindow,
     chatOptions: provider.capabilities(model).sampling ?? {},
     tools: standardRegistry(),
     workspace,

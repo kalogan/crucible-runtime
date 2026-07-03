@@ -241,6 +241,23 @@ describe('benchmark harness (Ring 2)', () => {
     expect(run.failures.some((f) => f.includes('replay_validation'))).toBe(true);
   }, 120_000);
 
+  it('scores a window-saturating run as context_overflow, not a model failure', async () => {
+    const { run } = await execute(singleRunSpec(), [
+      RUN_TESTS,
+      {
+        kind: 'dynamic',
+        respond: () => ({
+          // FakeProvider window is 32768; 30000 crosses the 90% guard.
+          message: { role: 'assistant', content: '', toolCalls: [] },
+          usage: { inputTokens: 30_000, outputTokens: 10 },
+          stopReason: 'end',
+        }),
+      },
+    ]);
+    expect(run.passed).toBe(false);
+    expect(run.failure_reason).toBe('context_overflow');
+  }, 120_000);
+
   it('rejects a spec that allows an unknown tool', async () => {
     const spec = { ...singleRunSpec(), tools: { allowed: ['teleport'], writableSurface: ['src/**'] } };
     await expect(execute(spec, [{ kind: 'text', content: 'x' }])).rejects.toThrow(/unknown tool/);

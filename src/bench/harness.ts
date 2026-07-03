@@ -193,6 +193,7 @@ async function executeRun(args: {
     systemPrompt: interpolate(args.prompt, {}),
     provider: deps.provider,
     model: args.model,
+    contextWindow: deps.provider.capabilities(args.model).contextWindow,
     chatOptions: { ...args.sampling, seed },
     tools: registry,
     workspace,
@@ -230,6 +231,7 @@ async function executeRun(args: {
   // the tests went green — an incomplete audit log is a runtime bug.
   let failureReason: FailureReason | undefined;
   if (!replay.ok) failureReason = 'replay_mismatch';
+  else if (turn.outcome === 'context_overflow') failureReason = 'context_overflow';
   else if (turn.outcome === 'max_iterations') failureReason = 'max_iterations';
   else if (turn.outcome === 'budget_exceeded') failureReason = 'wall_clock_exceeded';
   else if (turn.outcome === 'provider_failed') failureReason = 'provider_failed';

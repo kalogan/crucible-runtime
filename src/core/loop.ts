@@ -16,7 +16,16 @@ export type TurnOutcome =
   | 'max_iterations'
   | 'budget_exceeded'
   | 'aborted'
-  | 'provider_failed';
+  | 'provider_failed'
+  | 'context_overflow';
+
+/**
+ * The Ring-3 integrity guard (NOT the v0.4 context manager): when the
+ * provider reports a prompt at/over this fraction of the model's window, the
+ * turn fails loudly instead of continuing on a silently truncated context —
+ * a benchmark must never measure a model that has lost its system prompt.
+ */
+export const CONTEXT_OVERFLOW_THRESHOLD = 0.9;
 
 export interface TurnResult {
   outcome: TurnOutcome;
@@ -49,6 +58,8 @@ export interface ToolExecutor {
 export interface LoopDeps {
   provider: Provider;
   model: string;
+  /** The model's context window (tokens); drives the overflow guard. */
+  contextWindow: number;
   chatOptions: Omit<ChatOptions, 'signal'>;
   /** Owned by the session; the loop appends in place. */
   messages: RuntimeMessage[];
@@ -113,6 +124,21 @@ export async function runTurn(deps: LoopDeps): Promise<TurnResult> {
     });
     messages.push(response.message);
     usage = addUsage(usage, response.usage);
+
+    // Authoritative overflow check: prompt_eval_count is the prompt as the
+    // model actually saw it. At/near the window it either just truncated or
+    // will on the next iteration — fail loudly either way. (Ollama truncates
+    // from the front, evicting the system prompt first, and never errors.)
+    const overflowAt = Math.floor(deps.contextWindow * CONTEXT_OVERFLOW_THRESHOLD);
+    if (response.usage.inputTokens >= overflowAt) {
+      emitter.emit({
+        type: 'session_error',
+        message:
+          `context overflow: prompt used ${response.usage.inputTokens} of ` +
+          `${deps.contextWindow} tokens (guard threshold ${overflowAt})`,
+      });
+      return finish('context_overflow');
+    }
 
     if (response.message.toolCalls.length === 0) {
       return finish('completed', response.message.content);
