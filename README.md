@@ -15,10 +15,21 @@ real exit codes.
 - **Trust nothing:** builder reports are untrusted input; liveness is
   file-mtime + commits; gates run with real exit codes under hard timeouts.
 
-**Status: v0.1 contract frozen — implementation beginning.** The architecture
-and v0.1 → v1.0 plan live in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md);
-the frozen v0.1 implementation contract (the `fix-failing-test` benchmark
-kernel) is [`docs/V0.1_SPEC.md`](docs/V0.1_SPEC.md).
+**Status: v0.1 kernel implemented — Ring 1/2 green, Ring 3 (live model) pending.**
+The architecture and v0.1 → v1.0 plan live in
+[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md); the frozen v0.1 implementation
+contract is [`docs/V0.1_SPEC.md`](docs/V0.1_SPEC.md). Everything except the
+live model is CI-validated; the exit gate is the benchmark on real hardware:
+
+```bash
+pnpm install
+pnpm gate                      # typecheck · lint (arch-guards) · test · build
+ollama pull qwen3:14b
+pnpm bench fix-failing-test    # the v0.1 exit criteria: ≥4/5 runs pass
+```
+
+See [`benchmarks/README.md`](benchmarks/README.md) for how runs are staged,
+verified, replay-validated, and scored.
 
 Licensed under [Apache-2.0](LICENSE).
 
