@@ -1,0 +1,6 @@
+# Workspace boundary: pnpm resolves the nearest pnpm-workspace.yaml upward.
+# Declaring this project its own (single-package) workspace root stops the
+# walk, so installs can never be captured by a stray ancestor workspace file
+# (e.g. one above a temp dir or user profile).
+packages:
+  - "."
