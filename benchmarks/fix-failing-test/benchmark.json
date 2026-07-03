@@ -1,0 +1,51 @@
+{
+  "specVersion": 1,
+  "id": "fix-failing-test",
+  "description": "The v0.1 exit benchmark: run the failing test suite, locate the boundary-condition bug, fix the source (never the tests), and finish with the suite at exit code 0 — zero human intervention.",
+  "fixture": {
+    "path": "fixture",
+    "setupCommand": "pnpm install --frozen-lockfile"
+  },
+  "task": {
+    "briefTemplate": "The test suite in this workspace is failing. Run `pnpm test` to see the failure, find the bug in the source code, fix it, and re-run the tests until they pass with exit code 0. Do not modify the tests or any configuration — fix the implementation."
+  },
+  "model": {
+    "pin": "qwen3:14b"
+  },
+  "runs": {
+    "count": 5,
+    "seeds": [1, 2, 3, 4, 5]
+  },
+  "budgets": {
+    "maxIterations": 24,
+    "wallClockMs": 600000
+  },
+  "tools": {
+    "allowed": ["read_file", "list_dir", "grep", "write_file", "run_command"],
+    "writableSurface": ["src/**"]
+  },
+  "scoring": {
+    "requiredPasses": 4
+  },
+  "verifiers": [
+    {
+      "kind": "command_exit_zero",
+      "command": "pnpm test",
+      "timeoutMs": 120000
+    },
+    {
+      "kind": "files_unchanged",
+      "paths": [
+        "test/**",
+        "vitest.config.ts",
+        "package.json",
+        "tsconfig.json",
+        "pnpm-lock.yaml"
+      ]
+    },
+    {
+      "kind": "transcript_assert",
+      "assert": "failure_observed_before_first_write"
+    }
+  ]
+}
