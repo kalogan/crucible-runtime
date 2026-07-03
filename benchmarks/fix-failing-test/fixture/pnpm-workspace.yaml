@@ -12,3 +12,11 @@ packages:
 # to the default-ignore behavior everywhere else.
 ignoredBuiltDependencies:
   - esbuild
+
+# pnpm 11 renamed the build-approval vocabulary: it reads allowBuilds (a
+# name -> boolean map; approve-builds scaffolds it) and silently ignores the
+# pnpm 10 ignoredBuiltDependencies list above. Declare the decision in BOTH
+# vocabularies so installs are quiet and interaction-free on pnpm 10 (lenient
+# or strict-dep-builds) and pnpm 11 alike. false = never run the script.
+allowBuilds:
+  esbuild: false
