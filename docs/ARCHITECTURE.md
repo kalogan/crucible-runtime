@@ -584,7 +584,7 @@ never drop.
 | Version | Slice | Capabilities landed | Exit demo ("done" means) |
 |---|---|---|---|
 | **0.1** | **Benchmark kernel** | Per [`V0.1_SPEC.md`](V0.1_SPEC.md): `RuntimeMessage` model, non-streaming loop, Ollama adapter (`/api/chat`, `num_ctx`, `withRetry`), 5 tools (`read_file`, `list_dir`, `grep`, `write_file`, `run_command`), write-surface enforcement, JSONL transcript, FakeProvider harness, benchmark harness + fixture | **`fix-failing-test` passes ≥ 4/5 runs on qwen3:14b with zero human intervention** |
-| **0.2** | **Tools + policy** | Full safety classes, `edit_file` (string-replace), `glob`, targeted-git tool, generalized surface enforcement, parallel tool execution; **required hardening first (HARDENING.md H1–H3):** cooperative tool cancellation via composed AbortSignal, explicit sync-tool timeout semantics, run_command env allowlisting | Policy denial + model self-correction demo; benchmark pass rate holds |
+| **0.2** ✅ | **Tools + policy** | **Landed:** hardening H1–H3 (composed-AbortSignal cancellation, sync-tool non-preemptible+bounded semantics, run_command env allowlist); safety-taxonomy enforcement (confirm/forbidden-unattended denied when unattended); `edit_file` (string-replace); `glob`; generalized write-surface enforcement (all mutations). **Deferred to real-workload gating** (Director, 2026-07-04): targeted-git tool → pre-v0.6 slice; parallel tool execution → when a provider emits parallel calls. | Policy denial + model self-correction demo (Ring-2, `edit_file`); v0.1 benchmark pass rate holds |
 | **0.3** | **Roles + prompts** | Prompt packs (files, versioned, interpolated), `AgentRole` manifests, Architect role runs end-to-end, `ask_director` with paused-for-approval, config system | Architect grills with structured questions, then executes a small task under its role constraints |
 | **0.4** | **Context manager** | Token ledger, layered assembly, tool-result degradation, compaction via hidden summarize-turn, durable memory tool, resume-cold from journal + memory; optional `chatStream` for CLI; **durable transcript guarantees (HARDENING.md D1–D2):** crash-safe journal tail (fsync discipline + torn-tail recovery) and serialization-safety at the event sink — replay-after-completion is guaranteed since v0.1, crash durability arrives here | A session 3× the model's window completes without overflow; kill the process mid-turn, resume, finish |
 | **0.5** | **Second provider** | Anthropic adapter + OpenAI-compatible adapter (covers OpenAI, vLLM, LM Studio), capability table drives differences (caching, parallel calls); **the v0.1 benchmark becomes the provider parity suite**; package split (per Director decision) | The identical benchmark passes on Ollama and Claude by changing one config line |
@@ -666,3 +666,17 @@ derived decisions in [`V0.1_SPEC.md`](V0.1_SPEC.md)):
    iterations, failure reason), and automatic transcript-replay validation
    after every benchmark run. Further v0.1 scope changes require an explicit
    Director-approved amendment.
+
+### v0.1 result + v0.2 decisions (2026-07-04)
+
+10. **v0.1 PASSED.** `fix-failing-test` scored **5/5 on qwen3:14b** (Windows,
+    real Ollama), zero human intervention — the fundamental risk is answered.
+    Report committed under `benchmarks/results/`.
+11. **v0.2 scope forks (grilled before build):** the **targeted-git tool** and
+    **parallel tool execution** are **deferred**, not built in v0.2 — git to a
+    pre-v0.6 slice (its only consumer, committing builders, is v0.6), parallel
+    execution to when a provider actually emits parallel calls (qwen3:14b
+    emitted one tool call per turn in all 5 runs). Both are loop/tool-internal
+    additions with no interface break, so deferring costs nothing. v0.2 shipped
+    hardening H1–H3, safety-taxonomy enforcement, `edit_file`, `glob`, and
+    generalized write-surface enforcement.

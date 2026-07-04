@@ -34,14 +34,48 @@ model-attributable failure. Covered in Ring 1 (loop unit test) and Ring 2
 (harness integration variant). The benchmark never measures a model on a
 truncated system prompt.
 
-## Before v0.2 — required hardening
+## Before v0.2 — required hardening ✅ DONE (v0.2)
 
-*These become correctness and security requirements the moment v0.2's new
-tools, git integration, and parallel execution land. None affects the sealed
-v0.1 benchmark (run_command self-kills its process group; the sync tools are
-instantaneous on the 6-file fixture).*
+*All three landed with v0.2 (commit `feat(v0.2): tool hardening + policy +
+edit_file/glob`). Gate 74/74; v0.1 benchmark allowlist unchanged, so the 5-run
+baseline is unaffected.*
 
-### H1. Cooperative tool cancellation with a composed AbortSignal
+### H1. Cooperative tool cancellation with a composed AbortSignal ✅
+
+**Landed:** `src/tools/registry.ts` composes `ctx.signal` (session) with a
+per-execution timeout controller via `AbortSignal.any`; the tool executes with
+the composed signal. A timeout now aborts that signal, so the tool is
+*cancelled*, not abandoned — `run_command` kills its process tree on the
+composed signal, sync walks bail at their next boundary. A tool that heeds but
+can't return instantly is still capped by the executor (race → `timeout`), so
+no tool outlives its slot. Timeout remains injected-clock-driven (deterministic).
+Tested both directions (timeout-fires-and-caps, session-abort-reaches-tool).
+
+**Original debt:** the executor timeout was a `Promise.race` — when the timeout
+won, the tool was *abandoned, not cancelled*; a late write could land after
+`hashFiles` snapshots and corrupt the verdict.
+
+### H2. Explicit timeout semantics for synchronous tools ✅
+
+**Landed:** the honest decision is *non-preemptible + bounded*. `grep` /
+`list_dir` / `glob` check the composed signal at directory boundaries (catching
+already-aborted / between-call cancellation) and keep their hard input caps
+(`MATCH_CAP`, `LIST_ENTRY_CAP`, `GLOB_CAP`, char budgets) as the real backstop —
+a sync walk cannot be interrupted mid-directory, and the code + comments now say
+so plainly instead of implying `timeoutMs` protects them.
+
+### H3. Environment allowlisting for run_command ✅
+
+**Landed:** `run_command` spawns with `buildCommandEnv()` (`src/tools/env.ts`) —
+a platform-aware allowlist of non-secret OS/toolchain infra vars (PATH, HOME,
+locale, and the Windows system set pnpm/node need), matched case-insensitively,
+forcing `CI=true`. The ambient environment (and every host secret in it) is
+never forwarded. Validated: the Ring-2 honest-fixer runs real `pnpm test`
+through `run_command` under the allowlist.
+
+*(Historical debt notes retained below for context.)*
+
+### H1 (original). Cooperative tool cancellation with a composed AbortSignal
 
 **Debt:** the executor timeout (`src/tools/registry.ts`) is a `Promise.race` —
 when the timeout wins, the tool is *abandoned, not cancelled*. Nothing
