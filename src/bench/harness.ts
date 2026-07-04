@@ -26,6 +26,7 @@ import {
 import {
   hashFiles,
   hashTree,
+  headTail,
   inspectInstalledTree,
   runGateCommand,
   runVerifiers,
@@ -125,6 +126,9 @@ export async function runBenchmark(deps: HarnessDeps): Promise<BenchmarkReport> 
   return report;
 }
 
+// The template's role: fail fast on a broken setupCommand (once, not per run)
+// and warm the pnpm store so the per-workspace installs below are sub-second
+// and offline. Its installed node_modules is deliberately NEVER copied.
 async function prepareTemplate(args: {
   spec: BenchmarkSpec;
   fixtureDir: string;
@@ -171,8 +175,27 @@ async function executeRun(args: {
   const runDir = path.join(deps.scratchDir, 'bench', spec.id, runId);
   const workspace = path.join(runDir, 'workspace');
   fs.mkdirSync(runDir, { recursive: true });
-  fs.cpSync(args.templateDir, workspace, { recursive: true, verbatimSymlinks: true });
+  // Copy SOURCES only — never an installed node_modules. pnpm's package links
+  // (relative symlinks on POSIX, junctions with absolute targets on Windows)
+  // do not survive fs.cpSync portably: Windows dereferences junctions, which
+  // materializes packages WITHOUT their .pnpm sibling graph and breaks module
+  // resolution (verified: ERR_MODULE_NOT_FOUND '@vitest/utils'). Each
+  // workspace installs fresh instead — fast, because the template's install
+  // already warmed the pnpm store.
+  fs.cpSync(args.templateDir, workspace, {
+    recursive: true,
+    verbatimSymlinks: true,
+    filter: (src) => path.basename(src) !== 'node_modules',
+  });
   fs.rmSync(path.join(workspace, TEMPLATE_READY_MARKER), { force: true });
+  if (spec.fixture.setupCommand !== undefined) {
+    const setup = await runGateCommand(spec.fixture.setupCommand, workspace, SETUP_TIMEOUT_MS);
+    if (setup.exitCode !== 0) {
+      throw new Error(
+        `workspace setup failed (exit ${setup.exitCode}): ${spec.fixture.setupCommand}\n${headTail(setup.output)}`,
+      );
+    }
+  }
 
   const protectedGlobs = spec.verifiers.flatMap((v) => (v.kind === 'files_unchanged' ? v.paths : []));
   const protectedBaseline = protectedGlobs.length > 0 ? hashFiles(workspace, protectedGlobs) : {};
