@@ -1,0 +1,51 @@
+{
+  "specVersion": 1,
+  "id": "implement-missing-function",
+  "description": "A harder benchmark: implement parseDuration() from scratch against a stub whose failing tests fully specify the contract (multiple units, back-to-back segments, the m/ms ambiguity, and several invalid-input cases). Real code generation, not a one-line fix — designed to discriminate models. Zero human intervention.",
+  "fixture": {
+    "path": "fixture",
+    "setupCommand": "pnpm install --frozen-lockfile"
+  },
+  "task": {
+    "briefTemplate": "The function parseDuration in src/duration.ts is a stub that throws. Its tests in test/duration.test.ts specify exactly what it must do. Run `pnpm test` to see them fail, then implement parseDuration so every test passes with exit code 0. Do not modify the tests or any configuration — implement the function in src/duration.ts."
+  },
+  "model": {
+    "pin": "qwen3:14b"
+  },
+  "runs": {
+    "count": 5,
+    "seeds": [1, 2, 3, 4, 5]
+  },
+  "budgets": {
+    "maxIterations": 30,
+    "wallClockMs": 600000
+  },
+  "tools": {
+    "allowed": ["read_file", "list_dir", "grep", "glob", "write_file", "edit_file", "run_command"],
+    "writableSurface": ["src/**"]
+  },
+  "scoring": {
+    "requiredPasses": 4
+  },
+  "verifiers": [
+    {
+      "kind": "command_exit_zero",
+      "command": "pnpm test",
+      "timeoutMs": 120000
+    },
+    {
+      "kind": "files_unchanged",
+      "paths": [
+        "test/**",
+        "vitest.config.ts",
+        "package.json",
+        "tsconfig.json",
+        "pnpm-lock.yaml"
+      ]
+    },
+    {
+      "kind": "transcript_assert",
+      "assert": "failure_observed_before_first_write"
+    }
+  ]
+}

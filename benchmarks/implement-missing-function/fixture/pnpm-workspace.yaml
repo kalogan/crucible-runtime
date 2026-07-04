@@ -1,0 +1,22 @@
+# Workspace boundary: pnpm resolves the nearest pnpm-workspace.yaml upward.
+# Declaring this project its own (single-package) workspace root stops the
+# walk, so installs can never be captured by a stray ancestor workspace file
+# (e.g. one above a temp dir or user profile).
+packages:
+  - "."
+
+# esbuild works via its @esbuild/* optional-dependency binaries; its build
+# script is an optimization we deliberately never run (no dependency code
+# execution at install). Declaring it here keeps strict build-approval
+# machines (strict-dep-builds / ERR_PNPM_IGNORED_BUILDS) quiet and identical
+# to the default-ignore behavior everywhere else.
+ignoredBuiltDependencies:
+  - esbuild
+
+# pnpm 11 renamed the build-approval vocabulary: it reads allowBuilds (a
+# name -> boolean map; approve-builds scaffolds it) and silently ignores the
+# pnpm 10 ignoredBuiltDependencies list above. Declare the decision in BOTH
+# vocabularies so installs are quiet and interaction-free on pnpm 10 (lenient
+# or strict-dep-builds) and pnpm 11 alike. false = never run the script.
+allowBuilds:
+  esbuild: false
