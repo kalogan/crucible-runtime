@@ -1,6 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { z } from 'zod';
+import picomatch from 'picomatch';
 import type { Tool } from '../types.js';
 import { ok, fail } from '../types.js';
 import { resolveInWorkspace } from '../paths.js';
@@ -8,6 +9,7 @@ import { resolveInWorkspace } from '../paths.js';
 const SKIP_DIRS = new Set(['node_modules', '.git', 'dist', '.crucible-scratch']);
 const MATCH_CAP = 200;
 const LINE_SNIPPET = 400;
+const GLOB_CAP = 500;
 
 const grepInput = z.object({
   pattern: z
@@ -61,7 +63,8 @@ export const grep: Tool<z.infer<typeof grepInput>, { matches: number }> = {
       }
     };
     const walk = (dir: string, prefix: string): void => {
-      if (matches.length >= MATCH_CAP) return;
+      // H2 cooperative abort at directory boundaries; MATCH_CAP is the backstop.
+      if (matches.length >= MATCH_CAP || ctx.signal.aborted) return;
       for (const entry of fs.readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
         const rel = prefix === '' ? entry.name : `${prefix}/${entry.name}`;
         if (entry.isDirectory()) {
@@ -81,5 +84,46 @@ export const grep: Tool<z.infer<typeof grepInput>, { matches: number }> = {
     if (matches.length === 0) return ok({ matches: 0 }, `No matches for ${JSON.stringify(input.pattern)}.`);
     const capped = matches.length >= MATCH_CAP ? `\n… capped at ${MATCH_CAP} matches` : '';
     return ok({ matches: matches.length }, matches.join('\n') + capped);
+  },
+};
+
+const globInput = z.object({
+  pattern: z
+    .string()
+    .min(1)
+    .describe('Glob pattern relative to the workspace root, e.g. "src/**/*.ts" or "**/*.json".'),
+});
+
+export const glob: Tool<z.infer<typeof globInput>, { matches: number }> = {
+  name: 'glob',
+  description:
+    'Find files whose workspace-relative path matches a glob pattern. Returns matching paths, sorted.',
+  inputSchema: globInput,
+  safety: 'safe',
+  parallelSafe: true,
+  timeoutMs: 10_000,
+  async execute(input, ctx) {
+    const isMatch = picomatch(input.pattern, { dot: true });
+    const found: string[] = [];
+    let truncated = false;
+    const walk = (dir: string, prefix: string): void => {
+      if (truncated || ctx.signal.aborted) return;
+      for (const entry of fs.readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+        const rel = prefix === '' ? entry.name : `${prefix}/${entry.name}`;
+        if (entry.isDirectory()) {
+          if (!SKIP_DIRS.has(entry.name)) walk(path.join(dir, entry.name), rel);
+        } else if (entry.isFile() && isMatch(rel)) {
+          if (found.length >= GLOB_CAP) {
+            truncated = true;
+            return;
+          }
+          found.push(rel);
+        }
+      }
+    };
+    walk(ctx.workspace, '');
+    if (found.length === 0) return ok({ matches: 0 }, `No files match ${JSON.stringify(input.pattern)}.`);
+    const capped = truncated ? `\n… capped at ${GLOB_CAP} matches` : '';
+    return ok({ matches: found.length }, found.join('\n') + capped);
   },
 };

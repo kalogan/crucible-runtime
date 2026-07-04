@@ -29,6 +29,7 @@ export { OLLAMA_MODELS } from './providers/ollama/models.js';
 export type { Tool, ToolContext, ToolResult, ToolSafety } from './tools/types.js';
 export { ToolRegistry } from './tools/registry.js';
 export { standardRegistry } from './tools/builtin/index.js';
+export { buildCommandEnv } from './tools/env.js';
 
 export {
   createTranscriptWriter,

@@ -185,7 +185,9 @@ describe('executor', () => {
       'read_file',
       'list_dir',
       'grep',
+      'glob',
       'write_file',
+      'edit_file',
       'run_command',
     ]);
     const write = schemas.find((s) => s.name === 'write_file')!;

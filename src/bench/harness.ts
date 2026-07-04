@@ -11,7 +11,7 @@ import { AgentSession } from '../core/session.js';
 import type { Provider } from '../providers/types.js';
 import { ToolRegistry } from '../tools/registry.js';
 import type { Tool } from '../tools/types.js';
-import { readFile, listDir, grep, writeFile, runCommand } from '../tools/builtin/index.js';
+import { readFile, listDir, grep, glob, writeFile, editFile, runCommand } from '../tools/builtin/index.js';
 import { createTranscriptWriter, readJournal } from '../host/transcript.js';
 import { loadPrompt, interpolate } from './prompt.js';
 import {
@@ -36,7 +36,15 @@ import {
 /** Packages whose presence/link-topology the diagnostics record. */
 const INSPECT_PACKAGES = ['vitest', 'typescript'];
 
-const ALL_TOOLS = { read_file: readFile, list_dir: listDir, grep, write_file: writeFile, run_command: runCommand } as const;
+const ALL_TOOLS = {
+  read_file: readFile,
+  list_dir: listDir,
+  grep,
+  glob,
+  write_file: writeFile,
+  edit_file: editFile,
+  run_command: runCommand,
+} as const;
 const SETUP_TIMEOUT_MS = 600_000;
 const TEMPLATE_READY_MARKER = '.crucible-template-ready';
 

@@ -2,6 +2,7 @@ import { spawn } from 'node:child_process';
 import { z } from 'zod';
 import type { Tool } from '../types.js';
 import { ok } from '../types.js';
+import { buildCommandEnv } from '../env.js';
 
 const DEFAULT_TIMEOUT_MS = 120_000;
 const MAX_TIMEOUT_MS = 300_000;
@@ -44,7 +45,9 @@ export const runCommand: Tool<z.infer<typeof runCommandInput>, RunCommandOutput>
       const child = spawn(input.command, {
         cwd: ctx.workspace,
         shell: true,
-        env: { ...process.env, CI: 'true' }, // never let a runner drop into watch mode
+        // H3: allowlisted infra env only (forces CI=true), never the ambient
+        // environment — the model's command cannot read host secrets.
+        env: buildCommandEnv(),
         // POSIX: own process group, so a group kill takes the whole tree.
         // Windows: taskkill /T handles the tree instead (detached would only
         // allocate a separate console for no benefit).

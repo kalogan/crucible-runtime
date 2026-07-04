@@ -20,6 +20,8 @@ export interface SessionConfig {
   tools: ToolExecutor;
   workspace: string;
   surface?: string[] | undefined;
+  /** Whether a Director can approve confirm-class tools (v0.3+); default false. */
+  attended?: boolean | undefined;
   budgets: Budgets;
   clock: Clock;
   ids: IdGen;
@@ -57,6 +59,7 @@ export class AgentSession {
     const toolContext: ToolContext = {
       workspace: config.workspace,
       surface: config.surface,
+      attended: config.attended ?? false,
       signal: this.abort.signal,
       clock: config.clock,
       emitter,

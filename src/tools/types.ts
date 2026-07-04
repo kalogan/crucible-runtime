@@ -28,7 +28,18 @@ export interface ToolContext {
   workspace: string;
   /** Write allowlist (picomatch globs, workspace-relative). Absent = workspace-wide. */
   surface?: string[] | undefined;
+  /**
+   * Composed cancellation signal: fires on session abort OR this execution's
+   * timeout. Tools MUST honor it — long/async work aborts, sync walks bail at
+   * their next boundary.
+   */
   signal: AbortSignal;
+  /**
+   * Whether a Director is available to approve `confirm`-class actions. No
+   * Director channel exists until v0.3, so this is false in v0.2 and
+   * confirm / forbidden-unattended tools are denied.
+   */
+  attended?: boolean | undefined;
   clock: Clock;
   emitter: EventEmitter;
   session: SessionRef;

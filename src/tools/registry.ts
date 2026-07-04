@@ -79,6 +79,25 @@ export class ToolRegistry implements ToolExecutor {
       );
     }
 
+    // Safety gate (V0.2): confirm / forbidden-unattended tools require a live
+    // Director. There is no Director channel until v0.3, so an unattended
+    // session denies them outright — the model reads the denial and adapts.
+    if (
+      (tool.safety === 'confirm' || tool.safety === 'forbidden-unattended') &&
+      ctx.attended !== true
+    ) {
+      const reason = `${call.name} is ${tool.safety} and requires an attended session (no Director available)`;
+      ctx.emitter.emit({ type: 'policy_denied', tool: call.name, reason });
+      return done(
+        {
+          ok: false,
+          error: { kind: 'policy_denied', message: reason },
+          forModel: `DENIED: ${reason}. Choose a different approach that does not require Director approval.`,
+        },
+        'policy_denied',
+      );
+    }
+
     const parsed = tool.inputSchema.safeParse(call.arguments);
     if (!parsed.success) {
       const detail = parsed.error.issues
@@ -94,17 +113,24 @@ export class ToolRegistry implements ToolExecutor {
       );
     }
 
-    // Executor-enforced timeout: the tool's own cleanup is its business, but a
-    // hang must fail fast (exit-124 discipline).
-    const timeoutGuard = new AbortController();
+    // H1 — composed cancellation: the tool receives a signal that fires on
+    // EITHER session abort or this execution's timeout, so a timeout actually
+    // cancels the tool (run_command kills its process tree; sync tools bail at
+    // their next boundary) instead of abandoning it to run on past the slot.
+    // The timeout itself is driven by the injected clock (deterministic).
+    const timeoutController = new AbortController();
+    const sleepGuard = new AbortController();
+    const composedSignal = AbortSignal.any([ctx.signal, timeoutController.signal]);
+    const execCtx: ToolContext = { ...ctx, signal: composedSignal };
     try {
       const result = await Promise.race([
-        tool.execute(parsed.data as never, ctx),
-        // The rejection arm fires only when the guard aborts after the race
-        // settled; mapping it to TIMEOUT keeps the promise handled either way.
-        ctx.clock.sleep(tool.timeoutMs, timeoutGuard.signal).then(
-          () => TIMEOUT as never,
-          () => TIMEOUT as never,
+        tool.execute(parsed.data as never, execCtx),
+        ctx.clock.sleep(tool.timeoutMs, sleepGuard.signal).then(
+          () => {
+            timeoutController.abort(); // cancel the tool via its composed signal
+            return TIMEOUT as never;
+          },
+          () => TIMEOUT as never, // sleep guard aborted: the tool won the race
         ),
       ]);
       if ((result as unknown) === TIMEOUT) {
@@ -130,7 +156,7 @@ export class ToolRegistry implements ToolExecutor {
         'execution_failed',
       );
     } finally {
-      timeoutGuard.abort(); // release the pending sleep timer
+      sleepGuard.abort(); // release the pending sleep timer if the tool won
     }
   }
 }

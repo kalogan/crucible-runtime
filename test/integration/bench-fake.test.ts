@@ -192,6 +192,41 @@ describe('benchmark harness (Ring 2)', () => {
     expect(run.metrics.invalid_tool_calls.total, explain(run)).toBe(1);
   }, 120_000);
 
+  // The v0.2 exit demo, deterministic: an edit_file to a protected path is
+  // denied, and the agent self-corrects with a legal edit_file that greens.
+  it('denies an edit_file to a protected path, then self-corrects via edit_file', async () => {
+    const spec = {
+      ...singleRunSpec(),
+      tools: {
+        allowed: [...baseSpec.tools.allowed, 'edit_file'],
+        writableSurface: baseSpec.tools.writableSurface,
+      },
+    };
+    const denyEdit: ScriptStep = {
+      kind: 'tool_calls',
+      calls: [
+        { name: 'edit_file', arguments: { path: 'test/interval.test.ts', old_string: 'toBe(true)', new_string: 'toBe(false)' } },
+      ],
+    };
+    const editFix: ScriptStep = {
+      kind: 'tool_calls',
+      calls: [
+        {
+          name: 'edit_file',
+          arguments: {
+            path: 'src/interval.ts',
+            old_string: 'a.start < b.end && b.start < a.end',
+            new_string: 'a.start <= b.end && b.start <= a.end',
+          },
+        },
+      ],
+    };
+    const { run } = await execute(spec, [RUN_TESTS, denyEdit, editFix, RUN_TESTS, { kind: 'text', content: 'fixed via edit_file after the denial' }]);
+    expect(run.passed, explain(run)).toBe(true);
+    expect(run.metrics.invalid_tool_calls.policy_denied, explain(run)).toBe(1);
+    expect(run.metrics.tool_calls.by_tool['edit_file'], explain(run)).toBe(2);
+  }, 120_000);
+
   it('fails a lazy agent that reports success without fixing anything', async () => {
     const { run } = await execute(singleRunSpec(), [
       RUN_TESTS,
