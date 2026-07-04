@@ -29,6 +29,19 @@ export const OLLAMA_MODELS: Record<string, ModelCapabilities> = {
     thinking: true,
     sampling: { temperature: 0.6, topP: 0.95, topK: 20 },
   },
+  // Optional comparison model (non-blocking). MoE: 30B total, ~3B active.
+  // contextWindow kept modest to bound KV-cache VRAM — this model already
+  // partially offloads on a 12 GB GPU, and a larger window would make that
+  // worse without helping the tiny fixture.
+  'qwen3:30b-a3b': {
+    nativeTools: true,
+    parallelToolCalls: true,
+    contextWindow: 16_384,
+    supportsSystemPrompt: true,
+    promptCaching: 'prefix',
+    thinking: true,
+    sampling: { temperature: 0.6, topP: 0.95, topK: 20 },
+  },
   // Fallback entry (Director decision #3).
   'llama3.1:8b': {
     nativeTools: true,
