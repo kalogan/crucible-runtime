@@ -1,0 +1,220 @@
+{
+  "reportVersion": 1,
+  "benchmarkId": "implement-missing-function",
+  "passed": false,
+  "startedAtMs": 1783137981283,
+  "finishedAtMs": 1783141339058,
+  "environment": {
+    "providerId": "ollama",
+    "model": "qwen3:30b-a3b",
+    "modelDigest": "ad815644918f0eaab341c12b67837cc6dd4562342cdaf118f83d5d554cb37226",
+    "promptVersion": "1",
+    "fixtureHash": "46388f7e698be7479d19e8df66077643c4e06af834bba772a142f1e77b5f285f",
+    "seeds": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "node": "v24.13.1",
+    "pnpm": null,
+    "runtimeVersion": "0.1.0"
+  },
+  "runs": [
+    {
+      "runId": "run_001_42ed4427",
+      "seed": 1,
+      "passed": false,
+      "failure_reason": "wall_clock_exceeded",
+      "failures": [
+        "command_exit_zero(pnpm test): exit 1; output: $ vitest run\n\n\u001b[1m\u001b[7m\u001b[36m RUN \u001b[39m\u001b[27m\u001b[22m \u001b[36mv2.1.9 \u001b[39m\u001b[90mC:/Users/kevin/AppData/Local/Temp/crucible-scratch/bench/implement-missing-function/run_001_42ed4427/workspace\u001b[39m\n\n \u001b[31m❯\u001b[39m test/duration.test.ts \u001b[2m(\u001b[22m\u001b[2m10 tests\u001b[22m\u001b[2m | \u001b[22m\u001b[31m5 failed\u001b[39m\u001b[2m)\u001b[22m\u001b[90m 8\u001b[2mms\u001b[22m\u001b[39m\n\u001b[31m   \u001b[31m×\u001b[31m parseDuration\u001b[2m > \u001b[22mparses a single segment for each unit\u001b[90m 5\u001b[2mms\u001b[22m\u001b[31m\u001b[39m\n\u001b[31m     → expected +0 to be 1000 // Object.is equality\u001b[39m\n\u001b[31m   \u001b[31m×\u001b[31m parseDuration\u001b[2m > \u001b[22msums multiple back-to-back segments\u001b[90m 0\u001b[2mms\u001b[22m\u001b[31m\u001b[39m\n\u001b[31m     → expected +0 to be 5400000 // Object.is equality\u001b[39m\n\u001b[31m   \u001b[31m×\u001b[31m parseDuration\u001b[2m > \u001b[22maccepts a larger count than its unit boundary\u001b[90m 0\u001b[2mms\u001b[22m\u001b[31m\u001b[39m\n\u001b[31m     → expected +0 to be 5400000 // Object.is equality\u001b[39m\n\u001b[31m   \u001b[31m×\u001b[31m parseDuration\u001b[2m > \u001b[22mignores surrounding whitespace\u001b[90m 0\u001b[2mms\u001b[22m\u001b[31m\u001b[39m\n\u001b[31m     → Invalid duration format\u001b[39m\n\u001b[31m   \u001b[31m×\u001b[31m parseDuration\u001b[2m > \u001b[22mdoes not confuse the minute and millisecond units\u001b[90m 0\u001b[2mms\u001b[22m\u001b[31m\u001b[39m\n\u001b[31m     → expected +0 to be 300000 // Object.is equality\u001b[39m\n\n\u001b[31m⎯⎯⎯⎯⎯⎯⎯\u001b[1m\u001b[7m Failed Tests 5 \u001b[27m\u001b[22m⎯⎯⎯⎯⎯⎯⎯\u001b[39m\n\n\u001b[31m\u001b[1m\u001b[7m FAIL \u001b[27m\u001b[22m\u001b[39m test/duration.test.ts\u001b[2m > \u001b[22mparseDuration\u001b[2m > \u001b[22mparses a single segment for each unit\n\u001b[31m\u001b[1mAssertionError\u001b[22m: expected +0 to be 1000 // Object.is equality\u001b[39m\n\n\u001b[32m- Expected\u001b[39m\n\u001b[31m+ Received\u001b[39m\n\n\u001b[32m- 1\n… 3472 chars elided …\n/5]⎯\u001b[22m\u001b[39m\n\n\u001b[31m\u001b[1m\u001b[7m FAIL \u001b[27m\u001b[22m\u001b[39m test/duration.test.ts\u001b[2m > \u001b[22mparseDuration\u001b[2m > \u001b[22mdoes not confuse the minute and millisecond units\n\u001b[31m\u001b[1mAssertionError\u001b[22m: expected +0 to be 300000 // Object.is equality\u001b[39m\n\n\u001b[32m- Expected\u001b[39m\n\u001b[31m+ Received\u001b[39m\n\n\u001b[32m- 300000\u001b[39m\n\u001b[31m+ 0\u001b[39m\n\n\u001b[36m \u001b[2m❯\u001b[22m test/duration.test.ts:\u001b[2m34:33\u001b[22m\u001b[39m\n    \u001b[90m 32| \u001b[39m  \u001b[34mit\u001b[39m(\u001b[32m'does not confuse the minute and millisecond units'\u001b[39m\u001b[33m,\u001b[39m () \u001b[33m=>\u001b[39m {\n    \u001b[90m 33| \u001b[39m    \u001b[90m// \"m\" is minutes, \"ms\" is milliseconds — a naive parser conflates\u001b[39m…\n    \u001b[90m 34| \u001b[39m    \u001b[34mexpect\u001b[39m(\u001b[34mparseDuration\u001b[39m(\u001b[32m'5m'\u001b[39m))\u001b[33m.\u001b[39m\u001b[34mtoBe\u001b[39m(\u001b[34m300_000\u001b[39m)\u001b[33m;\u001b[39m\n    \u001b[90m   | \u001b[39m                                \u001b[31m^\u001b[39m\n    \u001b[90m 35| \u001b[39m    \u001b[34mexpect\u001b[39m(\u001b[34mparseDuration\u001b[39m(\u001b[32m'5ms'\u001b[39m))\u001b[33m.\u001b[39m\u001b[34mtoBe\u001b[39m(\u001b[34m5\u001b[39m)\u001b[33m;\u001b[39m\n    \u001b[90m 36| \u001b[39m    \u001b[34mexpect\u001b[39m(\u001b[34mparseDuration\u001b[39m(\u001b[32m'1m1ms'\u001b[39m))\u001b[33m.\u001b[39m\u001b[34mtoBe\u001b[39m(\u001b[34m60_001\u001b[39m)\u001b[33m;\u001b[39m\n\n\u001b[31m\u001b[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[31m1 failed\u001b[39m\u001b[22m\u001b[90m (1)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[31m5 failed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[1m\u001b[32m5 passed\u001b[39m\u001b[22m\u001b[90m (10)\u001b[39m\n\u001b[2m   Start at \u001b[22m 23:17:21\n\u001b[2m   Duration \u001b[22m 351ms\u001b[2m (transform 22ms, setup 0ms, collect 25ms, tests 8ms, environment 0ms, prepare 113ms)\u001b[22m\n\n[ELIFECYCLE] Test failed. See above for more details.\n"
+      ],
+      "metrics": {
+        "tool_calls": {
+          "total": 10,
+          "by_tool": {
+            "run_command": 2,
+            "write_file": 8
+          }
+        },
+        "invalid_tool_calls": {
+          "total": 0,
+          "validation_failed": 0,
+          "unknown_tool": 0,
+          "policy_denied": 0
+        },
+        "provider_retries": 0,
+        "tokens": {
+          "input": 66687,
+          "output": 30097,
+          "total": 96784
+        },
+        "wall_clock_ms": 658383,
+        "iterations": 10
+      },
+      "journalPath": "C:\\Users\\kevin\\AppData\\Local\\Temp\\crucible-scratch\\bench\\implement-missing-function\\run_001_42ed4427\\journal.jsonl"
+    },
+    {
+      "runId": "run_00d_46b18c23",
+      "seed": 2,
+      "passed": false,
+      "failure_reason": "wall_clock_exceeded",
+      "failures": [
+        "command_exit_zero(pnpm test): exit 1; output: $ vitest run\n\n\u001b[1m\u001b[7m\u001b[36m RUN \u001b[39m\u001b[27m\u001b[22m \u001b[36mv2.1.9 \u001b[39m\u001b[90mC:/Users/kevin/AppData/Local/Temp/crucible-scratch/bench/implement-missing-function/run_00d_46b18c23/workspace\u001b[39m\n\n \u001b[31m❯\u001b[39m test/duration.test.ts \u001b[2m(\u001b[22m\u001b[2m10 tests\u001b[22m\u001b[2m | \u001b[22m\u001b[31m6 failed\u001b[39m\u001b[2m)\u001b[22m\u001b[90m 8\u001b[2mms\u001b[22m\u001b[39m\n\u001b[31m   \u001b[31m×\u001b[31m parseDuration\u001b[2m > \u001b[22mparses a single segment for each unit\u001b[90m 5\u001b[2mms\u001b[22m\u001b[31m\u001b[39m\n\u001b[31m     → expected NaN to be 1000 // Object.is equality\u001b[39m\n\u001b[31m   \u001b[31m×\u001b[31m parseDuration\u001b[2m > \u001b[22msums multiple back-to-back segments\u001b[90m 0\u001b[2mms\u001b[22m\u001b[31m\u001b[39m\n\u001b[31m     → expected 3 to be 5400000 // Object.is equality\u001b[39m\n\u001b[31m   \u001b[31m×\u001b[31m parseDuration\u001b[2m > \u001b[22maccepts a larger count than its unit boundary\u001b[90m 0\u001b[2mms\u001b[22m\u001b[31m\u001b[39m\n\u001b[31m     → expected 9 to be 5400000 // Object.is equality\u001b[39m\n\u001b[31m   \u001b[31m×\u001b[31m parseDuration\u001b[2m > \u001b[22mtreats zero as valid\u001b[90m 0\u001b[2mms\u001b[22m\u001b[31m\u001b[39m\n\u001b[31m     → expected NaN to be +0 // Object.is equality\u001b[39m\n\u001b[31m   \u001b[31m×\u001b[31m parseDuration\u001b[2m > \u001b[22mignores surrounding whitespace\u001b[90m 0\u001b[2mms\u001b[22m\u001b[31m\u001b[39m\n\u001b[31m     → Invalid duration format\u001b[39m\n\u001b[31m   \u001b[31m×\u001b[31m parseDuration\u001b[2m > \u001b[22mdoes not confuse the minute and millisecond units\u001b[90m 0\u001b[2mms\u001b[22m\u001b[31m\u001b[39m\n\u001b[31m     → expected NaN to be 300000 // Object.is equality\u001b[39m\n\n\u001b[31m⎯⎯⎯⎯⎯⎯⎯\u001b[1m\u001b[7m Failed Tests 6 \u001b[27m\u001b[22m⎯⎯⎯⎯⎯⎯⎯\u001b[39m\n\n\u001b[31m\u001b[1m\u001b[7m FAIL \u001b[27m\u001b[22m\u001b[39m test/duration.test.ts\u001b[2m > \u001b[22mparseDuration\u001b[2m > \u001b[22mparses a single\n… 4367 chars elided …\n⎯\u001b[22m\u001b[39m\n\n\u001b[31m\u001b[1m\u001b[7m FAIL \u001b[27m\u001b[22m\u001b[39m test/duration.test.ts\u001b[2m > \u001b[22mparseDuration\u001b[2m > \u001b[22mdoes not confuse the minute and millisecond units\n\u001b[31m\u001b[1mAssertionError\u001b[22m: expected NaN to be 300000 // Object.is equality\u001b[39m\n\n\u001b[32m- Expected\u001b[39m\n\u001b[31m+ Received\u001b[39m\n\n\u001b[32m- 300000\u001b[39m\n\u001b[31m+ NaN\u001b[39m\n\n\u001b[36m \u001b[2m❯\u001b[22m test/duration.test.ts:\u001b[2m34:33\u001b[22m\u001b[39m\n    \u001b[90m 32| \u001b[39m  \u001b[34mit\u001b[39m(\u001b[32m'does not confuse the minute and millisecond units'\u001b[39m\u001b[33m,\u001b[39m () \u001b[33m=>\u001b[39m {\n    \u001b[90m 33| \u001b[39m    \u001b[90m// \"m\" is minutes, \"ms\" is milliseconds — a naive parser conflates\u001b[39m…\n    \u001b[90m 34| \u001b[39m    \u001b[34mexpect\u001b[39m(\u001b[34mparseDuration\u001b[39m(\u001b[32m'5m'\u001b[39m))\u001b[33m.\u001b[39m\u001b[34mtoBe\u001b[39m(\u001b[34m300_000\u001b[39m)\u001b[33m;\u001b[39m\n    \u001b[90m   | \u001b[39m                                \u001b[31m^\u001b[39m\n    \u001b[90m 35| \u001b[39m    \u001b[34mexpect\u001b[39m(\u001b[34mparseDuration\u001b[39m(\u001b[32m'5ms'\u001b[39m))\u001b[33m.\u001b[39m\u001b[34mtoBe\u001b[39m(\u001b[34m5\u001b[39m)\u001b[33m;\u001b[39m\n    \u001b[90m 36| \u001b[39m    \u001b[34mexpect\u001b[39m(\u001b[34mparseDuration\u001b[39m(\u001b[32m'1m1ms'\u001b[39m))\u001b[33m.\u001b[39m\u001b[34mtoBe\u001b[39m(\u001b[34m60_001\u001b[39m)\u001b[33m;\u001b[39m\n\n\u001b[31m\u001b[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[31m1 failed\u001b[39m\u001b[22m\u001b[90m (1)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[31m6 failed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[1m\u001b[32m4 passed\u001b[39m\u001b[22m\u001b[90m (10)\u001b[39m\n\u001b[2m   Start at \u001b[22m 23:27:46\n\u001b[2m   Duration \u001b[22m 365ms\u001b[2m (transform 22ms, setup 0ms, collect 26ms, tests 8ms, environment 0ms, prepare 131ms)\u001b[22m\n\n[ELIFECYCLE] Test failed. See above for more details.\n"
+      ],
+      "metrics": {
+        "tool_calls": {
+          "total": 8,
+          "by_tool": {
+            "run_command": 2,
+            "write_file": 6
+          }
+        },
+        "invalid_tool_calls": {
+          "total": 0,
+          "validation_failed": 0,
+          "unknown_tool": 0,
+          "policy_denied": 0
+        },
+        "provider_retries": 0,
+        "tokens": {
+          "input": 56072,
+          "output": 29543,
+          "total": 85615
+        },
+        "wall_clock_ms": 622710,
+        "iterations": 8
+      },
+      "journalPath": "C:\\Users\\kevin\\AppData\\Local\\Temp\\crucible-scratch\\bench\\implement-missing-function\\run_00d_46b18c23\\journal.jsonl"
+    },
+    {
+      "runId": "run_00n_ad075c0f",
+      "seed": 3,
+      "passed": false,
+      "failure_reason": "verification_failed",
+      "failures": [
+        "command_exit_zero(pnpm test): exit 1; output: $ vitest run\n\n\u001b[1m\u001b[7m\u001b[36m RUN \u001b[39m\u001b[27m\u001b[22m \u001b[36mv2.1.9 \u001b[39m\u001b[90mC:/Users/kevin/AppData/Local/Temp/crucible-scratch/bench/implement-missing-function/run_00n_ad075c0f/workspace\u001b[39m\n\n \u001b[31m❯\u001b[39m test/duration.test.ts \u001b[2m(\u001b[22m\u001b[2m10 tests\u001b[22m\u001b[2m | \u001b[22m\u001b[31m5 failed\u001b[39m\u001b[2m)\u001b[22m\u001b[90m 8\u001b[2mms\u001b[22m\u001b[39m\n\u001b[31m   \u001b[31m×\u001b[31m parseDuration\u001b[2m > \u001b[22mparses a single segment for each unit\u001b[90m 5\u001b[2mms\u001b[22m\u001b[31m\u001b[39m\n\u001b[31m     → expected +0 to be 1000 // Object.is equality\u001b[39m\n\u001b[31m   \u001b[31m×\u001b[31m parseDuration\u001b[2m > \u001b[22msums multiple back-to-back segments\u001b[90m 0\u001b[2mms\u001b[22m\u001b[31m\u001b[39m\n\u001b[31m     → expected +0 to be 5400000 // Object.is equality\u001b[39m\n\u001b[31m   \u001b[31m×\u001b[31m parseDuration\u001b[2m > \u001b[22maccepts a larger count than its unit boundary\u001b[90m 0\u001b[2mms\u001b[22m\u001b[31m\u001b[39m\n\u001b[31m     → expected +0 to be 5400000 // Object.is equality\u001b[39m\n\u001b[31m   \u001b[31m×\u001b[31m parseDuration\u001b[2m > \u001b[22mignores surrounding whitespace\u001b[90m 0\u001b[2mms\u001b[22m\u001b[31m\u001b[39m\n\u001b[31m     → Invalid input format\u001b[39m\n\u001b[31m   \u001b[31m×\u001b[31m parseDuration\u001b[2m > \u001b[22mdoes not confuse the minute and millisecond units\u001b[90m 0\u001b[2mms\u001b[22m\u001b[31m\u001b[39m\n\u001b[31m     → expected +0 to be 300000 // Object.is equality\u001b[39m\n\n\u001b[31m⎯⎯⎯⎯⎯⎯⎯\u001b[1m\u001b[7m Failed Tests 5 \u001b[27m\u001b[22m⎯⎯⎯⎯⎯⎯⎯\u001b[39m\n\n\u001b[31m\u001b[1m\u001b[7m FAIL \u001b[27m\u001b[22m\u001b[39m test/duration.test.ts\u001b[2m > \u001b[22mparseDuration\u001b[2m > \u001b[22mparses a single segment for each unit\n\u001b[31m\u001b[1mAssertionError\u001b[22m: expected +0 to be 1000 // Object.is equality\u001b[39m\n\n\u001b[32m- Expected\u001b[39m\n\u001b[31m+ Received\u001b[39m\n\n\u001b[32m- 1000\n… 3461 chars elided …\n/5]⎯\u001b[22m\u001b[39m\n\n\u001b[31m\u001b[1m\u001b[7m FAIL \u001b[27m\u001b[22m\u001b[39m test/duration.test.ts\u001b[2m > \u001b[22mparseDuration\u001b[2m > \u001b[22mdoes not confuse the minute and millisecond units\n\u001b[31m\u001b[1mAssertionError\u001b[22m: expected +0 to be 300000 // Object.is equality\u001b[39m\n\n\u001b[32m- Expected\u001b[39m\n\u001b[31m+ Received\u001b[39m\n\n\u001b[32m- 300000\u001b[39m\n\u001b[31m+ 0\u001b[39m\n\n\u001b[36m \u001b[2m❯\u001b[22m test/duration.test.ts:\u001b[2m34:33\u001b[22m\u001b[39m\n    \u001b[90m 32| \u001b[39m  \u001b[34mit\u001b[39m(\u001b[32m'does not confuse the minute and millisecond units'\u001b[39m\u001b[33m,\u001b[39m () \u001b[33m=>\u001b[39m {\n    \u001b[90m 33| \u001b[39m    \u001b[90m// \"m\" is minutes, \"ms\" is milliseconds — a naive parser conflates\u001b[39m…\n    \u001b[90m 34| \u001b[39m    \u001b[34mexpect\u001b[39m(\u001b[34mparseDuration\u001b[39m(\u001b[32m'5m'\u001b[39m))\u001b[33m.\u001b[39m\u001b[34mtoBe\u001b[39m(\u001b[34m300_000\u001b[39m)\u001b[33m;\u001b[39m\n    \u001b[90m   | \u001b[39m                                \u001b[31m^\u001b[39m\n    \u001b[90m 35| \u001b[39m    \u001b[34mexpect\u001b[39m(\u001b[34mparseDuration\u001b[39m(\u001b[32m'5ms'\u001b[39m))\u001b[33m.\u001b[39m\u001b[34mtoBe\u001b[39m(\u001b[34m5\u001b[39m)\u001b[33m;\u001b[39m\n    \u001b[90m 36| \u001b[39m    \u001b[34mexpect\u001b[39m(\u001b[34mparseDuration\u001b[39m(\u001b[32m'1m1ms'\u001b[39m))\u001b[33m.\u001b[39m\u001b[34mtoBe\u001b[39m(\u001b[34m60_001\u001b[39m)\u001b[33m;\u001b[39m\n\n\u001b[31m\u001b[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[31m1 failed\u001b[39m\u001b[22m\u001b[90m (1)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[31m5 failed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[1m\u001b[32m5 passed\u001b[39m\u001b[22m\u001b[90m (10)\u001b[39m\n\u001b[2m   Start at \u001b[22m 23:36:31\n\u001b[2m   Duration \u001b[22m 336ms\u001b[2m (transform 23ms, setup 0ms, collect 26ms, tests 8ms, environment 0ms, prepare 107ms)\u001b[22m\n\n[ELIFECYCLE] Test failed. See above for more details.\n"
+      ],
+      "metrics": {
+        "tool_calls": {
+          "total": 9,
+          "by_tool": {
+            "run_command": 2,
+            "write_file": 7
+          }
+        },
+        "invalid_tool_calls": {
+          "total": 0,
+          "validation_failed": 0,
+          "unknown_tool": 0,
+          "policy_denied": 0
+        },
+        "provider_retries": 0,
+        "tokens": {
+          "input": 73495,
+          "output": 24917,
+          "total": 98412
+        },
+        "wall_clock_ms": 522965,
+        "iterations": 10
+      },
+      "journalPath": "C:\\Users\\kevin\\AppData\\Local\\Temp\\crucible-scratch\\bench\\implement-missing-function\\run_00n_ad075c0f\\journal.jsonl"
+    },
+    {
+      "runId": "run_00y_0e35e065",
+      "seed": 4,
+      "passed": false,
+      "failure_reason": "verification_failed",
+      "failures": [
+        "command_exit_zero(pnpm test): exit 1; output: $ vitest run\n\n\u001b[1m\u001b[7m\u001b[36m RUN \u001b[39m\u001b[27m\u001b[22m \u001b[36mv2.1.9 \u001b[39m\u001b[90mC:/Users/kevin/AppData/Local/Temp/crucible-scratch/bench/implement-missing-function/run_00y_0e35e065/workspace\u001b[39m\n\n \u001b[31m❯\u001b[39m test/duration.test.ts \u001b[2m(\u001b[22m\u001b[2m10 tests\u001b[22m\u001b[2m | \u001b[22m\u001b[31m3 failed\u001b[39m\u001b[2m)\u001b[22m\u001b[90m 7\u001b[2mms\u001b[22m\u001b[39m\n\u001b[31m   \u001b[31m×\u001b[31m parseDuration\u001b[2m > \u001b[22msums multiple back-to-back segments\u001b[90m 3\u001b[2mms\u001b[22m\u001b[31m\u001b[39m\n\u001b[31m     → Invalid input format\u001b[39m\n\u001b[31m   \u001b[31m×\u001b[31m parseDuration\u001b[2m > \u001b[22mdoes not confuse the minute and millisecond units\u001b[90m 0\u001b[2mms\u001b[22m\u001b[31m\u001b[39m\n\u001b[31m     → Invalid input format\u001b[39m\n\u001b[31m   \u001b[31m×\u001b[31m parseDuration\u001b[2m > \u001b[22mthrows on non-integer or malformed input\u001b[90m 2\u001b[2mms\u001b[22m\u001b[31m\u001b[39m\n\u001b[31m     → expected [Function] to throw an error\u001b[39m\n\n\u001b[31m⎯⎯⎯⎯⎯⎯⎯\u001b[1m\u001b[7m Failed Tests 3 \u001b[27m\u001b[22m⎯⎯⎯⎯⎯⎯⎯\u001b[39m\n\n\u001b[31m\u001b[1m\u001b[7m FAIL \u001b[27m\u001b[22m\u001b[39m test/duration.test.ts\u001b[2m > \u001b[22mparseDuration\u001b[2m > \u001b[22msums multiple back-to-back segments\n\u001b[31m\u001b[1mError\u001b[22m: Invalid input format\u001b[39m\n\u001b[36m \u001b[2m❯\u001b[22m Module.parseDuration src/duration.ts:\u001b[2m34:11\u001b[22m\u001b[39m\n    \u001b[90m 32| \u001b[39m\n    \u001b[90m 33| \u001b[39m  \u001b[35mif\u001b[39m (remaining \u001b[33m!==\u001b[39m \u001b[32m''\u001b[39m) {\n    \u001b[90m 34| \u001b[39m    \u001b[35mthrow\u001b[39m \u001b[35mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m'Invalid input format'\u001b[39m)\u001b[33m;\u001b[39m\n    \u001b[90m   | \u001b[39m          \u001b[31m^\u001b[39m\n    \u001b[90m 35| \u001b[39m  }\n    \u001b[90m 36| \u001b[39m\n\u001b[90m \u001b[2m❯\u001b[22m test/duration.test.ts:\u001b[2m14:12\u001b[22m\u001b[39m\n\n\u001b[31m\u001b[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯\u001b[22m\u001b[\n… 490 chars elided …\n| \u001b[39m          \u001b[31m^\u001b[39m\n    \u001b[90m 35| \u001b[39m  }\n    \u001b[90m 36| \u001b[39m\n\u001b[90m \u001b[2m❯\u001b[22m test/duration.test.ts:\u001b[2m36:12\u001b[22m\u001b[39m\n\n\u001b[31m\u001b[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯\u001b[22m\u001b[39m\n\n\u001b[31m\u001b[1m\u001b[7m FAIL \u001b[27m\u001b[22m\u001b[39m test/duration.test.ts\u001b[2m > \u001b[22mparseDuration\u001b[2m > \u001b[22mthrows on non-integer or malformed input\n\u001b[31m\u001b[1mAssertionError\u001b[22m: expected [Function] to throw an error\u001b[39m\n\u001b[36m \u001b[2m❯\u001b[22m test/duration.test.ts:\u001b[2m55:41\u001b[22m\u001b[39m\n    \u001b[90m 53| \u001b[39m\n    \u001b[90m 54| \u001b[39m  \u001b[34mit\u001b[39m(\u001b[32m'throws on non-integer or malformed input'\u001b[39m\u001b[33m,\u001b[39m () \u001b[33m=>\u001b[39m {\n    \u001b[90m 55| \u001b[39m    \u001b[34mexpect\u001b[39m(() \u001b[33m=>\u001b[39m \u001b[34mparseDuration\u001b[39m(\u001b[32m'1.5h'\u001b[39m))\u001b[33m.\u001b[39m\u001b[34mtoThrow\u001b[39m()\u001b[33m;\u001b[39m\n    \u001b[90m   | \u001b[39m                                        \u001b[31m^\u001b[39m\n    \u001b[90m 56| \u001b[39m    \u001b[34mexpect\u001b[39m(() \u001b[33m=>\u001b[39m \u001b[34mparseDuration\u001b[39m(\u001b[32m'abc'\u001b[39m))\u001b[33m.\u001b[39m\u001b[34mtoThrow\u001b[39m()\u001b[33m;\u001b[39m\n    \u001b[90m 57| \u001b[39m    \u001b[34mexpect\u001b[39m(() \u001b[33m=>\u001b[39m \u001b[34mparseDuration\u001b[39m(\u001b[32m'h'\u001b[39m))\u001b[33m.\u001b[39m\u001b[34mtoThrow\u001b[39m()\u001b[33m;\u001b[39m\n\n\u001b[31m\u001b[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[31m1 failed\u001b[39m\u001b[22m\u001b[90m (1)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[31m3 failed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[1m\u001b[32m7 passed\u001b[39m\u001b[22m\u001b[90m (10)\u001b[39m\n\u001b[2m   Start at \u001b[22m 23:49:41\n\u001b[2m   Duration \u001b[22m 345ms\u001b[2m (transform 23ms, setup 0ms, collect 27ms, tests 7ms, environment 0ms, prepare 112ms)\u001b[22m\n\n[ELIFECYCLE] Test failed. See above for more details.\n"
+      ],
+      "metrics": {
+        "tool_calls": {
+          "total": 8,
+          "by_tool": {
+            "run_command": 2,
+            "read_file": 1,
+            "write_file": 5
+          }
+        },
+        "invalid_tool_calls": {
+          "total": 0,
+          "validation_failed": 0,
+          "unknown_tool": 0,
+          "policy_denied": 0
+        },
+        "provider_retries": 0,
+        "tokens": {
+          "input": 62486,
+          "output": 37743,
+          "total": 100229
+        },
+        "wall_clock_ms": 788011,
+        "iterations": 9
+      },
+      "journalPath": "C:\\Users\\kevin\\AppData\\Local\\Temp\\crucible-scratch\\bench\\implement-missing-function\\run_00y_0e35e065\\journal.jsonl"
+    },
+    {
+      "runId": "run_018_abbf816e",
+      "seed": 5,
+      "passed": true,
+      "failures": [],
+      "metrics": {
+        "tool_calls": {
+          "total": 10,
+          "by_tool": {
+            "run_command": 2,
+            "read_file": 1,
+            "write_file": 7
+          }
+        },
+        "invalid_tool_calls": {
+          "total": 0,
+          "validation_failed": 0,
+          "unknown_tool": 0,
+          "policy_denied": 0
+        },
+        "provider_retries": 0,
+        "tokens": {
+          "input": 77352,
+          "output": 36601,
+          "total": 113953
+        },
+        "wall_clock_ms": 754789,
+        "iterations": 11
+      },
+      "journalPath": "C:\\Users\\kevin\\AppData\\Local\\Temp\\crucible-scratch\\bench\\implement-missing-function\\run_018_abbf816e\\journal.jsonl"
+    }
+  ],
+  "aggregates": {
+    "pass_rate": 0.2,
+    "passes": 1,
+    "total_runs": 5,
+    "tokens_total": {
+      "min": 85615,
+      "median": 98412,
+      "max": 113953
+    },
+    "wall_clock_ms": {
+      "min": 522965,
+      "median": 658383,
+      "max": 788011
+    },
+    "iterations": {
+      "min": 8,
+      "median": 10,
+      "max": 11
+    },
+    "tool_calls_total": {
+      "min": 8,
+      "median": 9,
+      "max": 10
+    },
+    "invalid_tool_calls_total": {
+      "min": 0,
+      "median": 0,
+      "max": 0
+    }
+  }
+}
