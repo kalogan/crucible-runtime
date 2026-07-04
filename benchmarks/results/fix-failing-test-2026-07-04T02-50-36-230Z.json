@@ -1,0 +1,216 @@
+{
+  "reportVersion": 1,
+  "benchmarkId": "fix-failing-test",
+  "passed": true,
+  "startedAtMs": 1783132935818,
+  "finishedAtMs": 1783133436230,
+  "environment": {
+    "providerId": "ollama",
+    "model": "qwen3:30b-a3b",
+    "modelDigest": "ad815644918f0eaab341c12b67837cc6dd4562342cdaf118f83d5d554cb37226",
+    "promptVersion": "1",
+    "fixtureHash": "0c467389e491327ac72ec62b768ab1520940173f4fb9556ab1244d794a1958d5",
+    "seeds": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "node": "v24.13.1",
+    "pnpm": null,
+    "runtimeVersion": "0.1.0"
+  },
+  "runs": [
+    {
+      "runId": "run_001_9ead91e8",
+      "seed": 1,
+      "passed": true,
+      "failures": [],
+      "metrics": {
+        "tool_calls": {
+          "total": 5,
+          "by_tool": {
+            "run_command": 2,
+            "grep": 1,
+            "read_file": 1,
+            "write_file": 1
+          }
+        },
+        "invalid_tool_calls": {
+          "total": 0,
+          "validation_failed": 0,
+          "unknown_tool": 0,
+          "policy_denied": 0
+        },
+        "provider_retries": 0,
+        "tokens": {
+          "input": 14693,
+          "output": 3022,
+          "total": 17715
+        },
+        "wall_clock_ms": 90460,
+        "iterations": 6
+      },
+      "journalPath": "C:\\Users\\kevin\\AppData\\Local\\Temp\\crucible-scratch\\bench\\fix-failing-test\\run_001_9ead91e8\\journal.jsonl"
+    },
+    {
+      "runId": "run_008_e5e449c3",
+      "seed": 2,
+      "passed": true,
+      "failures": [],
+      "metrics": {
+        "tool_calls": {
+          "total": 5,
+          "by_tool": {
+            "run_command": 2,
+            "grep": 1,
+            "read_file": 1,
+            "write_file": 1
+          }
+        },
+        "invalid_tool_calls": {
+          "total": 0,
+          "validation_failed": 0,
+          "unknown_tool": 0,
+          "policy_denied": 0
+        },
+        "provider_retries": 0,
+        "tokens": {
+          "input": 14687,
+          "output": 4955,
+          "total": 19642
+        },
+        "wall_clock_ms": 117958,
+        "iterations": 6
+      },
+      "journalPath": "C:\\Users\\kevin\\AppData\\Local\\Temp\\crucible-scratch\\bench\\fix-failing-test\\run_008_e5e449c3\\journal.jsonl"
+    },
+    {
+      "runId": "run_00f_5d026dca",
+      "seed": 3,
+      "passed": true,
+      "failures": [],
+      "metrics": {
+        "tool_calls": {
+          "total": 5,
+          "by_tool": {
+            "run_command": 2,
+            "grep": 1,
+            "read_file": 1,
+            "write_file": 1
+          }
+        },
+        "invalid_tool_calls": {
+          "total": 0,
+          "validation_failed": 0,
+          "unknown_tool": 0,
+          "policy_denied": 0
+        },
+        "provider_retries": 0,
+        "tokens": {
+          "input": 14699,
+          "output": 3660,
+          "total": 18359
+        },
+        "wall_clock_ms": 78717,
+        "iterations": 6
+      },
+      "journalPath": "C:\\Users\\kevin\\AppData\\Local\\Temp\\crucible-scratch\\bench\\fix-failing-test\\run_00f_5d026dca\\journal.jsonl"
+    },
+    {
+      "runId": "run_00m_ccb57377",
+      "seed": 4,
+      "passed": true,
+      "failures": [],
+      "metrics": {
+        "tool_calls": {
+          "total": 5,
+          "by_tool": {
+            "run_command": 2,
+            "grep": 1,
+            "read_file": 1,
+            "write_file": 1
+          }
+        },
+        "invalid_tool_calls": {
+          "total": 0,
+          "validation_failed": 0,
+          "unknown_tool": 0,
+          "policy_denied": 0
+        },
+        "provider_retries": 0,
+        "tokens": {
+          "input": 14693,
+          "output": 6695,
+          "total": 21388
+        },
+        "wall_clock_ms": 138552,
+        "iterations": 6
+      },
+      "journalPath": "C:\\Users\\kevin\\AppData\\Local\\Temp\\crucible-scratch\\bench\\fix-failing-test\\run_00m_ccb57377\\journal.jsonl"
+    },
+    {
+      "runId": "run_00t_7e093285",
+      "seed": 5,
+      "passed": true,
+      "failures": [],
+      "metrics": {
+        "tool_calls": {
+          "total": 5,
+          "by_tool": {
+            "run_command": 2,
+            "grep": 1,
+            "read_file": 1,
+            "write_file": 1
+          }
+        },
+        "invalid_tool_calls": {
+          "total": 0,
+          "validation_failed": 0,
+          "unknown_tool": 0,
+          "policy_denied": 0
+        },
+        "provider_retries": 0,
+        "tokens": {
+          "input": 14704,
+          "output": 3041,
+          "total": 17745
+        },
+        "wall_clock_ms": 65372,
+        "iterations": 6
+      },
+      "journalPath": "C:\\Users\\kevin\\AppData\\Local\\Temp\\crucible-scratch\\bench\\fix-failing-test\\run_00t_7e093285\\journal.jsonl"
+    }
+  ],
+  "aggregates": {
+    "pass_rate": 1,
+    "passes": 5,
+    "total_runs": 5,
+    "tokens_total": {
+      "min": 17715,
+      "median": 18359,
+      "max": 21388
+    },
+    "wall_clock_ms": {
+      "min": 65372,
+      "median": 90460,
+      "max": 138552
+    },
+    "iterations": {
+      "min": 6,
+      "median": 6,
+      "max": 6
+    },
+    "tool_calls_total": {
+      "min": 5,
+      "median": 5,
+      "max": 5
+    },
+    "invalid_tool_calls_total": {
+      "min": 0,
+      "median": 0,
+      "max": 0
+    }
+  }
+}
